@@ -1,4 +1,4 @@
-package com.dyzs.conciseimageeditor.filter;
+package com.xinlan.imageeditlibrary.editimage.fliter;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;

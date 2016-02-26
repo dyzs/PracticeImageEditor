@@ -11,6 +11,7 @@ import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+
 import com.dyzs.conciseimageeditor.R;
 
 /**
@@ -35,7 +36,7 @@ public class MovableTextView2 extends TextView{
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        this.setHint("请输入文字~");
+        // this.setHint("请输入文字~");
         this.setBackgroundResource(R.drawable.dotted_shape);
         this.setHintTextColor(Color.MAGENTA);
         this.setTextColor(Color.BLUE);
@@ -100,10 +101,10 @@ public class MovableTextView2 extends TextView{
             t += offsetY;
             int r = l + this.getWidth();
             int b = t + this.getHeight();
-            //
-            if( l < 0 || r > mParentWidth || t < 0 || b > mParentHeight){
-                break;
-            }
+            // 允许超过屏幕
+//            if( l < 0 || r > mParentWidth || t < 0 || b > mParentHeight){
+//                break;
+//            }
             this.layout(l, t, r, b);
             startX = movingX;
             startY = movingY;
@@ -119,8 +120,8 @@ public class MovableTextView2 extends TextView{
                 // 通知view调用onClick？
                 return false;
             }
-            int finalLeft = this.getLeft();
-            int finalTop = this.getTop();
+            finalLeft = this.getLeft();
+            finalTop = this.getTop();
             // 保存值集合,可以用来做reload
             if (mOnActionUpListener != null) {
                 mOnActionUpListener.getStartPosition(finalLeft, finalTop);
@@ -132,8 +133,22 @@ public class MovableTextView2 extends TextView{
         }
         return super.onTouchEvent(event);
     }
+    private int finalLeft;
+    private int finalTop;
+    public int getFinalLeft() {
+        return finalLeft;
+    }
 
+    public int getFinalTop() {
+        return finalTop;
+    }
+    /**
+     * 用来代替点击事件
+     */
     private OnCustomClickListener mOnCustomClickListener;
+
+
+
     public interface OnCustomClickListener {
         void onCustomClick();
     }
@@ -142,7 +157,6 @@ public class MovableTextView2 extends TextView{
             this.mOnCustomClickListener = listener;
         }
     }
-
 
 
     private OnActionUpListener mOnActionUpListener;

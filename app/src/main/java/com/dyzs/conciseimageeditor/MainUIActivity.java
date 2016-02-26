@@ -1,5 +1,7 @@
 package com.dyzs.conciseimageeditor;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,22 +11,24 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dyzs.conciseimageeditor.filter.PhotoProcessing;
+import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
 import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
@@ -38,15 +42,11 @@ import com.nostra13.universalimageloader.core.decode.BaseImageDecoder;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
-public class MainUIActivity extends AppCompatActivity {
+public class MainUIActivity extends Activity {
     private static final String TAG = MainUIActivity.class.getSimpleName();
     private Context mContext;
 
@@ -67,12 +67,26 @@ public class MainUIActivity extends AppCompatActivity {
     private Bitmap copyBitmap;
 
     private FrameLayout fl_main_content;
+//    private RelativeLayout rl_work_panel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main_ui);
         mContext = this;
+//        AlertDialog.Builder dialog = new AlertDialog.Builder(getApplicationContext());
+//        View view = View.inflate(getApplicationContext(), R.layout.fragment_edit_image_text_bak, null);
+//        dialog.setView(view);
+//        dialog.show();
+//        EditText et = (EditText) view.findViewById(R.id.et_input_text);
+//        et.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                return false;
+//            }
+//        });
+
         // initImageLoader
         checkInitImageLoader();
         // 初始化 view
@@ -84,57 +98,56 @@ public class MainUIActivity extends AppCompatActivity {
 
 
         loadRecycleViewData();
-
-        // codeStyleAddMTV();
-    }
-
-    private void codeStyleAddMTV() {
-        MovableTextView2 mtv = new MovableTextView2(getApplicationContext());
-        mtv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        fl_main_content.addView(mtv);
-
     }
 
 
+    private float scaleXX;
+    private float scaleYY;
     private void loadBitmap() {
 //        String filePath = "file:/" + Environment.getExternalStorageDirectory().getPath()
 //                            + "/PictureTest/saveTemp.jpg";
 //        System.out.println("=======" + filePath);
 //        loadImage(filePath);
+//        mainBitmap = loadImage();
+        mainBitmap = loadImage();
 
-
-        mainBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.pic_bg_ch_style);
-        copyBitmap = mainBitmap.copy(Bitmap.Config.RGB_565, true);
+        copyBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true);
+//        iv_main_image.setImageBitmap(copyBitmap);
+        System.out.println("mainBitmap------:" + mainBitmap.getWidth() + ":" + mainBitmap.getHeight());
         iv_main_image.setImageBitmap(copyBitmap);
-//        loadImage();
-    }
 
-    public void loadImage(){
+
+
+
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                copyBitmap.getWidth(), copyBitmap.getHeight());
+//        rl_work_panel.setLayoutParams(layoutParams);
+//        System.out.println("masdfasdf-----:" + rl_work_panel.getWidth() + ":" + rl_work_panel.getHeight());
+        fl_main_content.addView(movableTextView2);
+    }
+    public Bitmap loadImage(){
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(getResources(), R.mipmap.pic_bg_ch_style, opts);
+        BitmapFactory.decodeResource(getResources(), R.mipmap.pic_bg_design, opts);
         int imgWidth = opts.outWidth;
         int imgHeight = opts.outHeight;
+        System.out.println(opts.outWidth + "::::" + opts.outHeight);
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display defaultDisplay = wm.getDefaultDisplay();
         int screenWidth = defaultDisplay.getWidth();
         int screenHeight = defaultDisplay.getHeight();
+        System.out.println(screenWidth + "::::" + screenHeight);
         int scaleX = imgWidth / screenWidth;
         int scaleY = imgHeight / screenHeight;
-        int zoom = 1; //? 1 还是 0
-        if(scaleX > zoom && scaleY > zoom){
-            zoom = (scaleX>scaleY)?scaleX:scaleY;
+        int scale = 1; //? 1 还是 0
+        if(scaleX > scale && scaleY > scale){
+            scale = (scaleX>scaleY)?scaleX:scaleY;
         }
-        System.out.println("得到的缩放比例为："+zoom);
-        opts.inSampleSize = zoom;
+        System.out.println("得到的缩放比例为："+scale);
+        opts.inSampleSize = scale;
         opts.inJustDecodeBounds = false;
-        Bitmap copyImg = BitmapFactory.decodeResource(getResources(), R.mipmap.pic_bg_ch_style, opts);
-        iv_main_image.setImageBitmap(copyImg);
+        Bitmap copyImg = BitmapFactory.decodeResource(getResources(), R.mipmap.pic_bg_design, opts);
+        return copyImg;
     }
 
 
@@ -143,9 +156,22 @@ public class MainUIActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        imageWidth = (int) ((float) metrics.widthPixels / 1.5);
+        imageHeight = (int) ((float) metrics.heightPixels / 1.5);
+
+        fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
+//        rl_work_panel = (RelativeLayout) findViewById(R.id.rl_work_panel);
+
+//        System.out.println("--===-->" + rl_work_panel.getWidth());
+//        rl_work_panel.measure(
+//                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+//                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+//        );
+//        System.out.println("--===-13434324->" + rl_work_panel.getWidth());
+
         // topBar
         bt_save = (ImageView) findViewById(R.id.bt_save);
-
         // mainContent
         mRecyclerView_filter_list = (RecyclerView) findViewById(R.id.rv_filter_list);
         mRecyclerView_filter_list.setHasFixedSize(true);
@@ -157,27 +183,20 @@ public class MainUIActivity extends AppCompatActivity {
         mRecyclerView_filter_list.setAdapter(new FilterAdapter(this));
 
         iv_main_image = (ImageView) findViewById(R.id.iv_main_image);
-        imageWidth = iv_main_image.getWidth();
-        imageHeight = iv_main_image.getHeight();
 
         // bottomToolbar
         main_radio = (RadioGroup) findViewById(R.id.main_radio);
 
-        movableTextView2 = (MovableTextView2) findViewById(R.id.mtmtmtmt);
-
+        movableTextView2 = new MovableTextView2(getApplicationContext());
+        movableTextView2.setTextSize(getResources().getDimension(R.dimen.movable_text_view_default_text_size));
+        movableTextView2.setText("请输入文字~");
         movableTextView2.setOnActionUpListener(new MovableTextView2.OnActionUpListener() {
             @Override
             public void getStartPosition(int startX, int startY) {
                 System.out.println(startX + ":" + startY);
+
             }
         });
-
-//        movableTextView2.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getApplicationContext(), "我被点击了", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         movableTextView2.setOnCustomClickListener(new MovableTextView2.OnCustomClickListener() {
             @Override
@@ -185,9 +204,6 @@ public class MainUIActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "=.=.=.=", Toast.LENGTH_SHORT).show();
             }
         });
-
-
-        fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
     }
 
     public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
@@ -231,16 +247,18 @@ public class MainUIActivity extends AppCompatActivity {
             Holder h = (Holder) holder;
             String name = PhotoProcessing.FILTERS[position];
             h.text.setText(name);
+            if (srcBitmap != null && !srcBitmap.isRecycled()) {
+                srcBitmap = null;
+            }
+            srcBitmap = BitmapUtils.getScaleBitmap(copyBitmap, 0.1f);
             if (position == 0) {
                 String filePath = "file:/" + Environment.getExternalStorageDirectory().getAbsolutePath()
                             + "/PictureTest/saveTemp.jpg";
                 System.out.println("position:" + position + filePath);
-                h.icon.setImageBitmap(BitmapFactory.decodeFile(filePath));
+                h.icon.setImageBitmap(srcBitmap);
             }
             else {
-//                System.out.println("position:" + position);
-//                h.icon.setImageBitmap(PhotoProcessing.filterPhoto(copyBitmap, position));
-                 h.icon.setImageBitmap(mainBitmap);
+                h.icon.setImageBitmap(PhotoProcessing.filterPhoto(srcBitmap, position));
             }
         }
 
@@ -257,7 +275,7 @@ public class MainUIActivity extends AppCompatActivity {
 
     }
     // inner class end
-
+private Bitmap srcBitmap;
 
     private Bitmap getImageFromFileSystem(String fileName) {
         Bitmap image = null;
@@ -305,34 +323,55 @@ public class MainUIActivity extends AppCompatActivity {
     private class SaveClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            // 初始化画笔
-            Paint textPaint = new Paint();
-            textPaint.setAntiAlias(true);
-            textPaint.setColor(Color.MAGENTA);
-            textPaint.setStyle(Paint.Style.FILL);
-            textPaint.setTextAlign(Paint.Align.CENTER);
-
-
-            movableTextView2.setDrawingCacheEnabled(true);
+//            iv_main_image.measure(
+//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+//            iv_main_image.layout(0, 0, iv_main_image.getMeasuredWidth(),
+//                    iv_main_image.getMeasuredHeight());
+//            iv_main_image.buildDrawingCache();
+//            Bitmap ivCache = iv_main_image.getDrawingCache();
+//
             movableTextView2.measure(
                     View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            );
-            movableTextView2.layout(0, 0, movableTextView2.getMeasuredWidth(), movableTextView2.getMeasuredHeight());
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            movableTextView2.buildDrawingCache();
+            Bitmap mtvCache = movableTextView2.getDrawingCache();
 
-            movableTextView2.setBackgroundRes(false);
-            Bitmap bitmap = movableTextView2.getDrawingCache();
-            movableTextView2.setBackgroundRes(true);
+            int imgW = iv_main_image.getWidth();
+            int imgH = iv_main_image.getHeight();
+            System.out.println("imgW:" + imgW + ":" + imgH);
+            scaleXX = copyBitmap.getWidth()* 1.0f / imgW*1.0f;
+            scaleYY = copyBitmap.getHeight()*1.0f / imgH*1.0f;
+            float scale = scaleXX > scaleYY ? scaleXX:scaleYY;
+            System.out.println("scale------:" + scaleXX + ":" + scaleYY);
+            int left, bottom;
+            // float scaleMax = Math.max(scaleWidth, scaleHeight);
+            if (scaleXX > scaleYY) {
+                left = (int) (movableTextView2.getLeft() * scale);
+                bottom = (int) (movableTextView2.getBottom() * scaleYY - ((imgH * 1.0f - copyBitmap.getHeight() * scaleYY) / 2));
+            } else {
+                left = (int) (movableTextView2.getLeft() * scaleXX - ((imgW * 1.0f - copyBitmap.getWidth() * scaleXX) / 2));
+                bottom = (int) (movableTextView2.getBottom() * scale);
+            }
+//            left = (movableTextView2.getLeft());
+//            bottom = (movableTextView2.getBottom());
+
+            Paint mPaint = new Paint();
+            mPaint.setAntiAlias(true);
+            mPaint.setStrokeWidth(0);
+            mPaint.setTextSize(movableTextView2.getTextSize());
+            mPaint.setColor(Color.RED);
 
             Canvas canvas = new Canvas(copyBitmap);
+            canvas.scale(scale, scale);
+            canvas.drawBitmap(mtvCache, 100, 200, null);
 
-            canvas.drawBitmap(bitmap, 100, 200, textPaint);
             iv_main_image.setImageBitmap(copyBitmap);
 
             // 保存到本地目录中
             String fileName = "save" + System.currentTimeMillis();
             String doneWithFileAbs = BitmapUtils.saveBitmap(copyBitmap, fileName);
-            System.out.println("===>" + doneWithFileAbs);
+            movableTextView2.setTextColor(Color.WHITE);
         }
     }
 
@@ -425,4 +464,9 @@ public class MainUIActivity extends AppCompatActivity {
 
         ImageLoader.getInstance().init(config);
     }
+
+
+//    srcBitmap = Bitmap.createBitmap(activity.mainBitmap.copy(
+//    Bitmap.Config.RGB_565, true));
+//    return PhotoProcessing.filterPhoto(srcBitmap, type);
 }

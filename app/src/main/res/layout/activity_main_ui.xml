@@ -20,32 +20,33 @@
     <FrameLayout
         android:id="@+id/fl_main_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:background="@android:color/holo_blue_bright"
         >
         <ImageView
             android:id="@+id/iv_main_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="50dp"
+            android:visibility="visible"
+            android:layout_gravity="center"
             />
-        <!--Add RecycleView  android:background="@mipmap/pic_bg_ch_style"-->
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/rl_work_panel"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@android:color/transparent"-->
+            <!-->-->
+        <!--</RelativeLayout>-->
 
+        <!--Add RecycleView  android:background="@mipmap/pic_bg_ch_style"-->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_filter_list"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:scrollbars="none"
+            android:gravity="center"
             android:layout_gravity="bottom"
-            android:visibility="visible"
-            />
-        <com.dyzs.conciseimageeditor.view.MovableTextView2
-            android:id="@+id/mtmtmtmt"
-            android:text="啊哈咯"
-            android:textSize="50sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:background="@android:color/background_dark"
             android:visibility="visible"
             />
     </FrameLayout>

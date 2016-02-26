@@ -17,20 +17,33 @@
 package com.dyzs.conciseimageeditor.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
+
+import com.dyzs.conciseimageeditor.view.MovableTextView2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,7 +51,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * BitmapUtils
@@ -379,7 +398,7 @@ public class BitmapUtils {
 			FileOutputStream out;
 			try {
 				out = new FileOutputStream(file);
-				if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)) {
+				if (bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)) {
 					out.flush();
 					out.close();
 				}
@@ -390,4 +409,408 @@ public class BitmapUtils {
 		}
 		return null;
 	}
+
+	public static Bitmap getScaleBitmap(Bitmap bitmap, float scale) {
+		Matrix matrix = new Matrix();
+		matrix.postScale(scale, scale); //长和宽放大缩小的比例
+		int bitmapWidth = bitmap.getWidth();
+		int bitmapHeight = bitmap.getHeight();
+		Bitmap resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, true);
+		return resizeBmp;
+	}
+
+	public static float getScale(Bitmap bitmap, Context context) {
+		int bitmapWidth = bitmap.getWidth();
+		int bitmapHeight = bitmap.getHeight();
+		DisplayMetrics outMetrics = getScreenWidth(context);
+		int displayW = outMetrics.widthPixels;
+		int displayH = outMetrics.heightPixels;
+		float scale = bitmapHeight > bitmapWidth ? displayH / (bitmapHeight * 1f) : displayW / (bitmapWidth * 1f);
+		return scale;
+	}
+	public static DisplayMetrics getScreenWidth(Context context) {
+		WindowManager wm = (WindowManager) context
+				.getSystemService(Context.WINDOW_SERVICE);
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		wm.getDefaultDisplay().getMetrics(outMetrics);
+		return outMetrics;
+	}
+
+	/**
+	 * 获取父控件的宽高，设置给bitmap
+	 * @param resId
+	 * @param contentView
+	 * @param context
+	 * @return
+	 */
+	public static Bitmap compressionFiller(int resId, View contentView, Context context) {
+		BitmapFactory.Options opt = new BitmapFactory.Options();
+		opt.inPreferredConfig = Bitmap.Config.RGB_565;
+		opt.inPurgeable = true;
+		opt.inInputShareable = true;
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resId, opt);
+		int layoutHeight = contentView.getHeight();
+		int layoutWidth = contentView.getWidth();
+		float scale = 0f;
+		int bitmapHeight = bitmap.getHeight();
+		int bitmapWidth = bitmap.getWidth();
+		scale = bitmapHeight > bitmapWidth
+				? layoutHeight / (bitmapHeight * 1f)
+				: layoutWidth / (bitmapWidth * 1f);
+		Bitmap resizeBmp;
+		if (scale != 0) {
+			int bitmapheight = bitmap.getHeight();
+			int bitmapwidth = bitmap.getWidth();
+			Matrix matrix = new Matrix();
+			matrix.postScale(scale, scale); // 长和宽放大缩小的比例
+			resizeBmp = Bitmap.createBitmap(bitmap, 0, 0, bitmapwidth,
+					bitmapheight, matrix, true);
+		} else {
+			resizeBmp = bitmap;
+		}
+		System.out.println("=========>" + scale);
+		HashMap<Float, Bitmap> hm = new HashMap();
+		hm.put(scale, resizeBmp);
+
+		return resizeBmp;
+	}
+
+
+	/**
+	 * 通过传入url获取位图的方法
+	 */
+	public static  Bitmap getNetBitmap(String url){
+		URL newUrl = null;
+		Bitmap bitmap = null;
+		try {
+			newUrl = new URL(url);
+			HttpURLConnection connection = (HttpURLConnection) newUrl.openConnection();
+			//使用 URL 连接进行输入
+			connection.setDoInput(true);
+			connection.connect();
+			connection.setReadTimeout(30000);
+			final int responseCode = connection.getResponseCode();
+			if (responseCode==200){
+				final InputStream inputStream = connection.getInputStream();
+				bitmap = BitmapFactory.decodeStream(inputStream);
+				inputStream.close();
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bitmap;
+	}
+
+	/**
+	 * 通过传入位图,新的宽.高比进行位图的缩放操作
+	 * @param bitmap
+	 * @param newWidth
+	 * @param newHeight
+	 * @return
+	 */
+	public static Drawable resizeImage(Bitmap bitmap, int newWidth, int newHeight) {
+
+
+		Bitmap BitmapOrg = bitmap;
+		int width = BitmapOrg.getWidth();
+		int height = BitmapOrg.getHeight();
+
+		// calculate the scale
+		float scaleWidth = ((float) newWidth) / width;
+		float scaleHeight = ((float) newHeight) / height;
+
+		// create a matrix for the manipulation
+		Matrix matrix = new Matrix();
+		// resize the Bitmap
+		matrix.postScale(scaleWidth, scaleHeight);
+		// if you want to rotate the Bitmap
+		// matrix.postRotate(45);
+
+		// recreate the new Bitmap
+		Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width,
+				height, matrix, true);
+
+		// make a Drawable from Bitmap to allow to set the Bitmap
+		// to the ImageView, ImageButton or what ever
+		return new BitmapDrawable(resizedBitmap);
+	}
+
+
+	/**
+	 * 获得圆角图片的方法
+	 * @param bitmap
+	 * @param roundPx
+	 * @return
+	 */
+	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, float roundPx) {
+
+		//创建位图
+		Bitmap outputBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap
+				.Config.ARGB_8888);
+
+		/**
+		 * 画布的相关设置
+		 */
+		Canvas canvas = new Canvas(outputBitmap);
+		canvas.drawARGB(0, 0, 0, 0);
+
+		/**
+		 * 画笔的相关设置
+		 */
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setColor(color);
+
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+
+
+		/**
+		 * public void drawRoundRect (RectF rect, float rx, float ry, Paint paint)
+		 * 参数说明
+		 * rect：RectF对象。
+		 * rx：x方向上的圆角半径。
+		 * ry：y方向上的圆角半径。
+		 * paint：绘制时所使用的画笔
+		 */
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+		/**
+		 * 设置两张图片相交时的模式
+		 */
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+
+		return outputBitmap;
+	}
+
+
+	/**
+	 * 将彩色图转换为灰度图
+	 * @param bitmap 位图
+	 * @return  返回转换好的位图
+	 */
+	public static  Bitmap convertGreyImg(Bitmap bitmap) {
+		//获取位图的宽
+		int width = bitmap.getWidth();
+		//获取位图的高
+		int height = bitmap.getHeight();
+
+		//通过位图的大小创建像素点数组
+		int []pixels = new int[width * height];
+
+		bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+		int alpha = 0xFF << 24;
+		for(int i = 0; i < height; i++)  {
+			for(int j = 0; j < width; j++) {
+				int grey = pixels[width * i + j];
+
+				int red = ((grey  & 0x00FF0000 ) >> 16);
+				int green = ((grey & 0x0000FF00) >> 8);
+				int blue = (grey & 0x000000FF);
+
+				grey = (int)((float) red * 0.3 + (float)green * 0.59 + (float)blue * 0.11);
+				grey = alpha | (grey << 16) | (grey << 8) | grey;
+				pixels[width * i + j] = grey;
+			}
+		}
+		Bitmap result = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+		result.setPixels(pixels, 0, width, 0, 0, width, height);
+		return result;
+	}
+	/**
+	 * 获得带倒影的图片方法
+	 * @param bitmap
+	 * @return
+	 */
+	public static Bitmap createReflectionImageWithOrigin(Bitmap bitmap) {
+		final int reflectionGap = 4;
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+
+		Matrix matrix = new Matrix();
+		matrix.preScale(1, -1);
+
+		Bitmap reflectionImage = Bitmap.createBitmap(bitmap, 0, height / 2, width, height / 2, matrix, false);
+
+		Bitmap bitmapWithReflection = Bitmap.createBitmap(width, (height + height / 2), Bitmap.Config.ARGB_8888);
+
+		Canvas canvas = new Canvas(bitmapWithReflection);
+		canvas.drawBitmap(bitmap, 0, 0, null);
+		Paint deafalutPaint = new Paint();
+		canvas.drawRect(0, height, width, height + reflectionGap, deafalutPaint);
+
+		canvas.drawBitmap(reflectionImage, 0, height + reflectionGap, null);
+
+		Paint paint = new Paint();
+		LinearGradient shader = new LinearGradient(0, bitmap.getHeight(), 0, bitmapWithReflection.getHeight() + reflectionGap, 0x70ffffff, 0x00ffffff, Shader.TileMode.CLAMP);
+		paint.setShader(shader);
+		// Set the Transfer mode to be porter duff and destination in
+		paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+		// Draw a rectangle using the paint with our linear gradient
+		canvas.drawRect(0, height, width, bitmapWithReflection.getHeight() + reflectionGap, paint);
+		return bitmapWithReflection;
+	}
+
+	/**
+	 * 获取水印照片
+	 * @param bitmap
+	 * @param watermarkBitmap
+	 * @return
+	 */
+	public Bitmap getWaterMarkBitmap( Bitmap bitmap, Bitmap watermarkBitmap )
+	{
+
+		if( bitmap == null )
+		{
+			return null;
+		}
+
+		int bitmapWidth = bitmap.getWidth();
+		int bitmapHeight = bitmap.getHeight();
+
+		int watermarkBitmapWidth = watermarkBitmap.getWidth();
+		int watermarkBitmapHeight = watermarkBitmap.getHeight();
+		//create the new blank bitmap
+		//创建一个新的和SRC长度宽度一样的位图
+		Bitmap newb = Bitmap.createBitmap( bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888 );
+		Canvas canvas = new Canvas( newb );
+		//draw src into
+		//在 0，0坐标开始画入src
+		canvas.drawBitmap( bitmap, 0, 0, null );
+		//draw watermark into
+		canvas.drawBitmap(watermarkBitmap, bitmapWidth - watermarkBitmapWidth + 5, bitmapHeight - watermarkBitmapHeight +
+				5, null);
+		//在src的右下角画入水印
+		//save all clip
+		canvas.save(Canvas.ALL_SAVE_FLAG);//保存
+		//store
+		canvas.restore();//存储
+		return newb;
+	}
+	/** 重新编码Bitmap
+	 *
+	 * @param srcBitmap
+	 *          需要重新编码的Bitmap
+	 *
+	 * @param format
+	 *          编码后的格式（目前只支持png和jpeg这两种格式）
+	 *
+	 * @param quality
+	 *          重新生成后的bitmap的质量
+	 *
+	 * @return
+	 *          返回重新生成后的bitmap
+	 */
+	private static Bitmap codec(Bitmap srcBitmap, Bitmap.CompressFormat format,
+								int quality) {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		srcBitmap.compress(format, quality, outputStream);
+
+		byte[] array = outputStream.toByteArray();
+		return BitmapFactory.decodeByteArray(array, 0, array.length);
+	}
+
+	/**
+	 * 把一个View的对象转换成bitmap
+	 * @param view
+	 * @return
+	 */
+	public static Bitmap getViewTransforBitmap(View view) {
+		//清除焦点
+		view.clearFocus();
+		view.setPressed(false);
+
+		//能画缓存就返回false
+		boolean willNotCache = view.willNotCacheDrawing();
+		view.setWillNotCacheDrawing(false);
+		int color = view.getDrawingCacheBackgroundColor();
+		view.setDrawingCacheBackgroundColor(0);
+		if (color != 0) {
+			view.destroyDrawingCache();
+		}
+		view.buildDrawingCache();
+		Bitmap cacheBitmap = view.getDrawingCache();
+		if (cacheBitmap == null) {
+
+			return null;
+		}
+		Bitmap bitmap = Bitmap.createBitmap(cacheBitmap);
+		// Restore the view
+		view.destroyDrawingCache();
+		view.setWillNotCacheDrawing(willNotCache);
+		view.setDrawingCacheBackgroundColor(color);
+		return bitmap;
+	}
+
+	/**
+	 * 图片透明度处理
+	 *
+	 * @param sourceBitmap
+	 *            原始图片
+	 * @param number
+	 *            透明度
+	 * @return
+	 */
+	public static Bitmap getAlphaBitmap(Bitmap sourceBitmap, int number) {
+		int[] argb = new int[sourceBitmap.getWidth() * sourceBitmap.getHeight()];
+		sourceBitmap.getPixels(argb, 0, sourceBitmap.getWidth(), 0, 0,sourceBitmap.getWidth(), sourceBitmap.getHeight());// 获得图片的ARGB值
+		number = number * 255 / 100;
+		for (int i = 0; i < argb.length; i++) {
+			argb[i] = (number << 24) | (argb[i] & 0x00FFFFFF);// 修改最高2位的值
+		}
+		sourceBitmap = Bitmap.createBitmap(argb, sourceBitmap.getWidth(), sourceBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+		return sourceBitmap;
+	}
+
+	/**
+	 * 绘画出字体
+	 */
+	public static Bitmap regenerateBitmap(Bitmap srcBm, MovableTextView2 mtv) {
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setTextSize(mtv.getTextSize());
+		// paint.setTypeface(getTypefaceObj());
+		paint.setColor(Color.BLUE);
+		paint.setStyle(Paint.Style.FILL);
+		paint.setDither(true);
+		paint.setFlags(Paint.SUBPIXEL_TEXT_FLAG);
+		// String lines[] = text.split("\n");
+		int textWidth = (int) paint.measureText(mtv.getText().toString());
+//		for (String str : lines)
+//		{
+//			int temp = (int) paint.measureText(str);
+//			if (temp > textWidth)
+//				textWidth = temp;
+//		}
+		if (textWidth < 1)
+			textWidth = 1;
+		if (srcBm != null)
+			srcBm.recycle();
+		srcBm = Bitmap.createBitmap(textWidth, (int) mtv.getTextSize(),
+				Bitmap.Config.RGB_565);
+		Canvas canvas = new Canvas(srcBm);
+		canvas.drawText(mtv.getText().toString(), 10, 100, paint);
+//		for (int i = 1; i <= lines.length; i++)
+//		{
+//			canvas.drawText(lines[i - 1], 0, i * textSize, paint);
+//		}
+		// setCenter();
+		return  srcBm;
+	}
+
+//	/**
+//	 * 计算中心点的坐标
+//	 */
+//	protected void setCenter()
+//	{
+//		double delX = getWidth() * mScale / 2;
+//		double delY = getHeight() * mScale / 2;
+//		R = (float) Math.sqrt((delX * delX + delY * delY));
+//		centerRotation = (float) Math.toDegrees(Math.atan(delY / delX));
+//	}
 }
