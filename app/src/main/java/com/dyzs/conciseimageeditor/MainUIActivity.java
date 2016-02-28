@@ -55,7 +55,7 @@ public class MainUIActivity extends Activity {
     private int lastClickPosition = 0;
 
 
-    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x002;
+    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x001;
     private PopupWindow mPppw;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
