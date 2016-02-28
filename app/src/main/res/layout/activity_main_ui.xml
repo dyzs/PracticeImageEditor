@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/black"
+    android:background="#343535"
     >
 
     <!--<Button-->
@@ -20,8 +20,8 @@
     <FrameLayout
         android:id="@+id/fl_main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/holo_blue_bright"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         >
         <ImageView
             android:id="@+id/iv_main_image"
@@ -30,25 +30,25 @@
             android:visibility="visible"
             android:layout_gravity="center"
             />
-        <!--<RelativeLayout-->
-            <!--android:id="@+id/rl_work_panel"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:background="@android:color/transparent"-->
-            <!-->-->
-        <!--</RelativeLayout>-->
-
-        <!--Add RecycleView  android:background="@mipmap/pic_bg_ch_style"-->
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_filter_list"
+        <RelativeLayout
+            android:id="@+id/rl_work_panel"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:scrollbars="none"
-            android:gravity="center"
-            android:layout_gravity="bottom"
-            android:background="@android:color/background_dark"
-            android:visibility="visible"
-            />
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center"
+            >
+        </RelativeLayout>
+        <!--Add RecycleView  android:background="@mipmap/pic_bg_ch_style"-->
     </FrameLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_filter_list"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:scrollbars="none"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:background="@android:color/transparent"
+        android:visibility="invisible"
+        />
     <include layout="@layout/layout_bottom_toolbar"/>
 </LinearLayout>

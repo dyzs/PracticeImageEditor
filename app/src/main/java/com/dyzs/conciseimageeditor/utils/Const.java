@@ -8,16 +8,16 @@ import android.os.Environment;
 public interface Const {
 
     // sd 卡根目录
-    String SDCARD_ROOT_DIR = Environment.getExternalStorageDirectory().getPath();
+    String SDCARD_ROOT = Environment.getExternalStorageDirectory().getPath();
 
     // 文件根目录前缀
     String FILE_PREFIX = "file://";
 
     // 文件的父目录
-    String STICKER = FILE_PREFIX + SDCARD_ROOT_DIR + "/anybeenImageEditor/stickers/";
+    String STICKER = FILE_PREFIX + SDCARD_ROOT + "/anybeenImageEditor/stickers/";
 
     // 图片保存路径
-    String SAVE_DIR = SDCARD_ROOT_DIR + "/anybeenImageEditor/saves/";
+    String SAVE_DIR = SDCARD_ROOT + "/saves/";
 
     // 文件的子目录
     String ANIMAL           = STICKER + "dongwu";    // 动物
@@ -31,6 +31,6 @@ public interface Const {
     String FRAME            = STICKER + "biankuang"; // 边框
     String PROFESSION       = STICKER + "zhiye";     // 职业
 
-    String TEMP = SDCARD_ROOT_DIR + "/anybeenImageEditor/stickers/";
+    String TEMP = SDCARD_ROOT + "/anybeenImageEditor/stickers/";
 
 }

@@ -4,26 +4,27 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:layout_alignParentBottom="true"
+    android:background="@android:color/transparent"
     android:orientation="horizontal">
     <RadioGroup
         android:id="@+id/main_radio"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@android:color/white"
         android:alpha="0.8"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingTop="2dp" >
 
         <RadioButton
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:id="@+id/rb_word"
             style="@style/main_tab_bottom"
             android:drawableTop="@drawable/btn_tab_word_selector"
             android:text="@string/tab_word" />
 
         <RadioButton
+            android:visibility="gone"
             android:textColor="@android:color/black"
             android:id="@+id/rb_sticker"
             style="@style/main_tab_bottom"
@@ -31,6 +32,7 @@
             android:text="@string/tab_sticker" />
 
         <RadioButton
+            android:visibility="gone"
             android:textColor="@android:color/black"
             android:id="@+id/rb_filter"
             style="@style/main_tab_bottom"

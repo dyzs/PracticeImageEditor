@@ -12,7 +12,7 @@ public class PhotoProcessing {
     private static final String TAG = "PhotoProcessing";
 
     public static final String[] FILTERS = {"原色", "轻柔", "黑白", "经典", "绚丽",
-            "复古", "优雅", "胶片", "回忆", "优格", "流年", "光绚"};
+            "复古"};//, "优雅", "胶片", "回忆", "优格", "流年", "光绚"};
     // position 对应的是 FILTERS 的选项
     public static Bitmap filterPhoto(Bitmap bitmap, int position) {
         if (bitmap != null) {

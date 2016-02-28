@@ -31,7 +31,6 @@ public class MovableTextView2 extends TextView{
         init();
     }
 
-
     private void init() {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -39,35 +38,27 @@ public class MovableTextView2 extends TextView{
         // this.setHint("请输入文字~");
         this.setBackgroundResource(R.drawable.dotted_shape);
         this.setHintTextColor(Color.MAGENTA);
-        this.setTextColor(Color.BLUE);
+        this.setTextColor(Color.RED);
         this.setClickable(true);
         this.setFocusable(true);
         this.setTextSize(getResources().getDimension(R.dimen.movable_text_view_default_text_size));
         this.setLayoutParams(layoutParams);
     }
 
-    public void setBackgroundRes(boolean b) {
-        if(b) {
+    public enum OperateState{
+        STATE_MOVING, STATE_SELECTED, STATE_UNSELECTED
+    }
+    private static final int ACTION_STATE_DOWN = 1;
+    private static final int ACTION_STATE_MOVE = 2;
+    private static final int ACTION_STATE_UP = 3;
+    private OperateState operateState = OperateState.STATE_UNSELECTED;
+    public void setBackgroundRes() {
+        // 判断如果是在选中状态或者是滑动状态，则添加背景
+        if(operateState == OperateState.STATE_MOVING || operateState == OperateState.STATE_SELECTED) {
             this.setBackgroundResource(R.drawable.dotted_shape);
-        } else {
+        } else if (operateState == OperateState.STATE_UNSELECTED) {
             this.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         }
-    }
-
-    private int mParentWidth;
-    private int mParentHeight;
-    private int pLeft, pRight, pTop, pBottom;
-    private ViewGroup parent;
-    private void getParentParams() {
-        ViewParent parent = this.getParent();
-        this.parent = (ViewGroup) parent;
-        mParentWidth = this.parent.getWidth();
-        mParentHeight = this.parent.getHeight();
-        pLeft = this.parent.getLeft();
-        pRight = this.parent.getRight();
-        pTop = this.parent.getTop();
-        pBottom = this.parent.getBottom();
-        // System.out.println("坐上右下:"+pLeft+"/"+pTop+"/"+pRight+"/"+pBottom);
     }
 
     private int startX;
@@ -77,14 +68,14 @@ public class MovableTextView2 extends TextView{
     private int checkStartY;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        getParentParams();
+        // this.getParentParams();
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
             startX = (int) event.getRawX();
             startY = (int) event.getRawY();
             checkStartX = (int) event.getRawX();
             checkStartY = (int) event.getRawY();
-            System.out.println("down:" + startX + "," + startY);
+            operateState = OperateState.STATE_SELECTED;
             return true;
         case MotionEvent.ACTION_MOVE:
             int movingX = (int) event.getRawX();
@@ -101,15 +92,17 @@ public class MovableTextView2 extends TextView{
             t += offsetY;
             int r = l + this.getWidth();
             int b = t + this.getHeight();
-            // 允许超过屏幕
+            // 允许超过屏幕,要不然会出现卡顿的现象
 //            if( l < 0 || r > mParentWidth || t < 0 || b > mParentHeight){
 //                break;
 //            }
             this.layout(l, t, r, b);
             startX = movingX;
             startY = movingY;
+            operateState = OperateState.STATE_MOVING;
             return true;
         case MotionEvent.ACTION_UP:
+            operateState = OperateState.STATE_UNSELECTED;
             int upX = (int) event.getRawX();
             int upY = (int) event.getRawY();
             if (Math.abs(upX - checkStartX) < 15 && Math.abs(upY - checkStartY) < 15) {
@@ -117,7 +110,7 @@ public class MovableTextView2 extends TextView{
                 if (mOnCustomClickListener != null) {
                     mOnCustomClickListener.onCustomClick();
                 }
-                // 通知view调用onClick？
+                // 不让滑动事件继续消费当前事件
                 return false;
             }
             finalLeft = this.getLeft();
@@ -168,4 +161,48 @@ public class MovableTextView2 extends TextView{
             this.mOnActionUpListener = listener;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    private int mParentWidth;
+//    private int mParentHeight;
+//    private int pLeft, pRight, pTop, pBottom;
+//    private ViewGroup parent;
+//    private void getParentParams() {
+//        ViewParent parent = this.getParent();
+//        this.parent = (ViewGroup) parent;
+//        mParentWidth = this.parent.getWidth();
+//        mParentHeight = this.parent.getHeight();
+//        pLeft = this.parent.getLeft();
+//        pRight = this.parent.getRight();
+//        pTop = this.parent.getTop();
+//        pBottom = this.parent.getBottom();
+//        // System.out.println("坐上右下:"+pLeft+"/"+pTop+"/"+pRight+"/"+pBottom);
+//    }
 }

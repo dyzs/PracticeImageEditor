@@ -41,13 +41,16 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.dyzs.conciseimageeditor.R;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -813,4 +816,67 @@ public class BitmapUtils {
 //		R = (float) Math.sqrt((delX * delX + delY * delY));
 //		centerRotation = (float) Math.toDegrees(Math.atan(delY / delX));
 //	}
+
+	private Bitmap getImageFromFileSystem(String fileAbsPath) {
+		Bitmap image = null;
+		File file = new File(fileAbsPath);
+		try {
+			InputStream is = new FileInputStream(file);
+			image = BitmapFactory.decodeStream(is);
+		} catch (Exception e) {}
+		return image;
+	}
+
+	public static Bitmap loadImage(Context context, int resId, ViewGroup viewGroup){
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		BitmapFactory.decodeResource(context.getResources(), resId, opts);
+		float imgWidth = opts.outWidth * 1.0f;
+		float imgHeight = opts.outHeight * 1.0f;
+		viewGroup.measure(
+				View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+				View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+//		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+//		Display defaultDisplay = wm.getDefaultDisplay();
+//		float screenWidth = defaultDisplay.getWidth();
+//		float screenHeight = defaultDisplay.getHeight();
+		float parentWidth = viewGroup.getMeasuredWidth() * 1.0f;
+		float parentHeight = viewGroup.getMeasuredHeight() * 1.0f;
+		System.out.println(parentWidth + "::::" + parentHeight);
+		float scaleX = imgWidth / parentWidth;
+		float scaleY = imgHeight / parentHeight;
+		float scale = 1.0f; //? 1 还是 0
+		if(scaleX > scale && scaleY > scale){
+			scale = (scaleX>scaleY)?scaleX:scaleY;
+		}
+		System.out.println("得到的缩放比例为："+scale);
+		opts.inSampleSize = (int) scale;
+		opts.inJustDecodeBounds = false;
+		Bitmap copyImg = BitmapFactory.decodeResource(context.getResources(), resId, opts);
+		return copyImg;
+	}
+
+
+	public static Bitmap loadImage(Context context, int resId, int imgWidth, int imgHeight){
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inJustDecodeBounds = true;
+		BitmapFactory.decodeResource(context.getResources(), resId, opts);
+		final int height = opts.outHeight;
+		final int width = opts.outWidth;
+		int inSampleSize = 1;
+		if (height > imgHeight || width > imgWidth) {
+			if (width > height) {
+				inSampleSize = (int) FloatMath
+						.floor(((float) height / imgHeight) + 0.5f); // Math.round((float)height
+			} else {
+				inSampleSize = (int) FloatMath
+						.floor(((float) width / imgWidth) + 0.5f); // Math.round((float)width
+			}
+		}
+		opts.inSampleSize = inSampleSize;
+		opts.inJustDecodeBounds = false;
+		System.out.println("得到的缩放比例为：" + inSampleSize);
+		Bitmap copyImg = BitmapFactory.decodeResource(context.getResources(), resId, opts);
+		return copyImg;
+	}
 }

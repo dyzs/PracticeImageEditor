@@ -1,7 +1,8 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="100dp"
-    android:layout_height="100dp"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="56dp"
+    android:layout_height="56dp"
+    android:padding="3dp"
+
     android:gravity="center"
     >
 
@@ -20,5 +21,6 @@
         android:textSize="12sp"
         android:gravity="center"
         android:text="字体大小"
+        android:layout_alignBottom="@+id/icon"
         android:visibility="visible" />
-</LinearLayout>
+</RelativeLayout>
