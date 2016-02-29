@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_edit_panel_content"
+    android:layout_width="fill_parent"
+    android:layout_height="300dp"
+    android:background="@color/gray_5b"
+    android:layout_gravity="bottom"
+    android:visibility="visible"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dip"
+        android:layout_weight="1.0"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:text="字号："
+            android:textColor="@color/white" />
+        <SeekBar
+            android:id="@+id/sbFontSize"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:maxHeight="10.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:thumb="@drawable/seekbar_diy_thumb_bkg"
+            />
+    </LinearLayout>
+
+    <!--字体间距-->
+    <!--
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dip"
+        android:layout_weight="1.0"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:text="间距："
+            android:textColor="@color/white" />
+        <SeekBar
+            android:id="@+id/sbFontLineSpace"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1.0"
+            android:maxHeight="10.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:thumb="@drawable/seekbar_diy_thumb_bkg" />
+        <Button
+            android:id="@+id/btnLineSpaceSmall"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_textstyle_smallsize" />
+        <Button
+            android:id="@+id/btnLineSpacebig"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10.0dip"
+            android:background="@drawable/btn_textstyle_bigsize" />
+    </LinearLayout>
+    -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dip"
+        android:layout_weight="1.0"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:text="颜色："
+            android:textColor="@color/white" />
+        <SeekBar
+            android:id="@+id/sbFontColor"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5.0dip"
+            android:layout_weight="1.0"
+            android:maxHeight="10.0dip"
+            android:minHeight="10.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:thumb="@drawable/seekbar_diy_thumb_bkg" />
+        <ImageView
+            android:id="@+id/iv_colorshow"
+            android:layout_width="20.0dip"
+            android:layout_height="20.0dip"
+            android:layout_marginRight="10.0dip"
+            android:src="@drawable/textstyle_color_border" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dip"
+        android:layout_marginBottom="20.0dip"
+        android:layout_weight="1.0"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:text="字体选择："
+            android:textSize="20sp"
+            android:textColor="@color/white" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40.0dip"
+            android:layout_marginBottom="20.0dip"
+            android:layout_weight="1.0"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageView
+                android:id="@+id/btnLayoutH"
+                android:layout_width="30.0dip"
+                android:layout_height="30.0dip"
+                android:layout_marginRight="5.0dip"
+                android:background="@color/gray_5b"
+                android:scaleType="centerInside"
+                android:src="@drawable/btn_text_style_layouth" />
+            <ImageView
+                android:id="@+id/btnLayoutV"
+                android:layout_width="30.0dip"
+                android:layout_height="30.0dip"
+                android:background="@color/gray_5b"
+                android:scaleType="centerInside"
+                android:src="@drawable/btn_text_style_layoutv" />
+            <ImageView
+                android:id="@+id/btnAlignLeft"
+                android:layout_width="30.0dip"
+                android:layout_height="30.0dip"
+                android:layout_marginRight="5.0dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/btn_text_style_halign_left" />
+            <ImageView
+                android:id="@+id/btnAlignMiddle"
+                android:layout_width="30.0dip"
+                android:layout_height="30.0dip"
+                android:layout_marginRight="5.0dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/btn_text_style_halign_center" />
+            <ImageView
+                android:id="@+id/btnAlignRight"
+                android:layout_width="30.0dip"
+                android:layout_height="30.0dip"
+                android:layout_marginRight="10.0dip"
+                android:scaleType="centerInside"
+                android:src="@drawable/btn_text_style_halign_right" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

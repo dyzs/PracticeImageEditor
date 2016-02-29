@@ -1,7 +1,6 @@
 package com.dyzs.conciseimageeditor;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -19,17 +18,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dyzs.conciseimageeditor.view.QuickOptionDialog;
 import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
 import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class MainUIActivity extends Activity {
     private Context mContext;
     // topToolbar
@@ -42,6 +48,11 @@ public class MainUIActivity extends Activity {
 
     // tempTest
     private MovableTextView2 movableTextView2;
+    private HashMap<Integer, MovableTextView2> mMoveTextView;
+
+
+
+
     private Bitmap mainBitmap;
     private Bitmap copyBitmap;
     private Bitmap filterSampleIconBitmap;
@@ -55,30 +66,29 @@ public class MainUIActivity extends Activity {
     private int lastClickPosition = 0;
 
 
-    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x001;
-    private PopupWindow mPppw;
+    private static int mCurrImgId = R.mipmap.pic_bg_ch_style;
+    public int keyboardHeight = 0;
+    private LinearLayout ll_edit_panel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // 设置启动不弹出软键盘, 这样就可以监听到键盘的高度了, 得到键盘高度后再重新绘制
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_main_ui);
         mContext = this;
-
+        mMoveTextView = new HashMap<>();
         initView();
         // 加载图片
         loadBitmap();
 
-        handleEvent();
-
-        initTextEditPanel();
-
+        handleListener();
     }
     private void initView() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         imageWidth = (int) ((float) metrics.widthPixels / 1.5);
         imageHeight = (int) ((float) metrics.heightPixels / 1.5);
         System.out.println("imageWidth------:" + imageWidth + ":" + imageHeight);
-
         fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
         rl_work_panel = (RelativeLayout) findViewById(R.id.rl_work_panel);
         // topBar
@@ -100,19 +110,10 @@ public class MainUIActivity extends Activity {
         movableTextView2 = new MovableTextView2(getApplicationContext());
         movableTextView2.setTextSize(getResources().getDimension(R.dimen.movable_text_view_default_text_size));
         movableTextView2.setText("请输入文字~");
-        movableTextView2.setOnActionUpListener(new MovableTextView2.OnActionUpListener() {
-            @Override
-            public void getStartPosition(int startX, int startY) {
-                System.out.println(startX + ":" + startY);
 
-            }
-        });
-        movableTextView2.setOnCustomClickListener(new MovableTextView2.OnCustomClickListener() {
-            @Override
-            public void onCustomClick() {
-                Toast.makeText(getApplicationContext(), "=.=.=.=", Toast.LENGTH_SHORT).show();
-            }
-        });
+        ll_edit_panel = (LinearLayout) findViewById(R.id.ll_edit_panel);
+        ll_edit_panel.setVisibility(View.INVISIBLE);
+
     }
     private void loadBitmap() {
 //        String filePath = "file:/" + Environment.getExternalStorageDirectory().getPath()
@@ -124,8 +125,8 @@ public class MainUIActivity extends Activity {
         copyBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true);
         System.out.println("mainBitmap------:" + mainBitmap.getWidth() + ":" + mainBitmap.getHeight());
         iv_main_image.setImageBitmap(copyBitmap);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                copyBitmap.getWidth(), copyBitmap.getHeight());
+//        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+//                copyBitmap.getWidth(), copyBitmap.getHeight());
 //        rl_work_panel.setLayoutParams(layoutParams);
 //        rl_work_panel.measure(
 //                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -133,18 +134,170 @@ public class MainUIActivity extends Activity {
         fl_main_content.addView(movableTextView2);
     }
 
-    private void handleEvent() {
+    private void handleListener() {
         bt_save.setOnClickListener(new SaveClickListener());
         main_radio.setOnCheckedChangeListener(new CurrentRadioGroupOnCheckChangeListener());
+        movableTextView2.setOnCustomClickListener(new MTVClickListener());
+        // 监听获取键盘高度, 只能监听到打开与关闭
+        SoftKeyBoardListener.setListener(MainUIActivity.this, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+                if (height != 0) {
+                    keyboardHeight = height;
+                }
+            }
+            @Override
+            public void keyBoardHide(int height) {
+                if (height != 0) {
+                    keyboardHeight = height;
+                }
+            }
+        });
     }
 
-    private void initTextEditPanel() {
 
-
-
+    // --- listener 底部的 RadioGroup, 切换监听,
+    private class CurrentRadioGroupOnCheckChangeListener implements RadioGroup.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            switch (checkedId) {
+                case R.id.rb_word:
+                    // Show Text Editor
+                    break;
+                case R.id.rb_sticker:
+                    // Show Sticker ImageList RecycleView
+                    break;
+                case R.id.rb_filter:
+                    // Show Filter ImageList RecycleView
+                    break;
+                default:
+                    System.out.println("出现未知错误：" + checkedId);
+                    break;
+            }
+        }
     }
 
-        // inner class start
+    private class SaveClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            movableTextView2.measure(
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            int textViewL = movableTextView2.getLeft();
+            int textViewT = movableTextView2.getTop();
+            int textViewR = movableTextView2.getRight();
+            int textViewB = movableTextView2.getBottom();
+            float textViewW = movableTextView2.getWidth() * 1.0f;
+            float textViewH = movableTextView2.getHeight() * 1.0f;
+
+            float imgW = iv_main_image.getWidth() * 1.0f;
+            float imgH = iv_main_image.getHeight() * 1.0f;
+            float bitW = copyBitmap.getWidth() * 1.0f;
+            float bitH = copyBitmap.getHeight() * 1.0f;
+
+            scaleXX = bitW / imgW;
+            scaleYY = bitH / imgH;
+            float scale = scaleXX > scaleYY ? scaleXX:scaleYY;
+            System.out.println("scale------:" + scaleXX + ":" + scaleYY);
+            int saveLeft, saveBottom;
+            float leaveW = 0.0f, leaveH = 0.0f;
+            if (scaleXX > scaleYY) {
+                leaveH = (imgH - bitH / scale) / 2;
+            } else {
+                leaveW = (imgW - bitW / scale) / 2;
+            }
+
+            float textSize = movableTextView2.getTextSize() * scale;
+            Paint mPaint = new Paint();
+            mPaint.setAntiAlias(true);
+            mPaint.setStrokeWidth(0);
+            mPaint.setTextSize(textSize);
+            mPaint.setColor(Color.BLUE);
+
+            float textSpacing = (textViewH - textSize / scale);    // 获取画笔要绘画的文本的高度
+            System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + textSpacing);
+            saveLeft = (int) ((textViewL - leaveW) * scale);
+            saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);
+            System.out.println("save:" + saveLeft + ":" + saveBottom);
+//            处理滤镜
+//            copyBitmap = PhotoProcessing.filterPhoto(copyBitmap, lastClickPosition);
+            Canvas canvas = new Canvas(copyBitmap);
+            canvas.drawText(
+                    movableTextView2.getText().toString(),
+                    saveLeft, saveBottom,
+                    mPaint
+            );
+//            canvas.scale(scale, scale);
+            iv_main_image.setImageBitmap(copyBitmap);
+            // 保存到本地目录中
+            String fileName = "save" + System.currentTimeMillis();
+            String doneWithFileAbs = BitmapUtils.saveBitmap(copyBitmap, fileName);
+            //
+        }
+    }
+
+
+    private class MTVClickListener implements MovableTextView2.OnCustomClickListener {
+        @Override
+        public void onCustomClick() {
+            // Toast.makeText(getApplicationContext(), "我是文本控件，", Toast.LENGTH_SHORT).show();
+//            showQuickOption();
+            ll_edit_panel.setVisibility(View.VISIBLE);
+            
+        }
+    }
+
+    // 显示快速操作界面
+    private void showQuickOption() {
+        final QuickOptionDialog dialog = new QuickOptionDialog(
+                MainUIActivity.this, movableTextView2);
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+    }
+
+
+
+
+
+
+
+    // ====================task line
+    private LoadImageTask mLoadImageTask;
+    private int imageWidth, imageHeight;		// 展示图片控件 宽 高
+    public void loadImage(String filepath) {
+        if (mLoadImageTask != null) {
+            mLoadImageTask.cancel(true);
+        }
+        mLoadImageTask = new LoadImageTask();
+        mLoadImageTask.execute(filepath);
+    }
+    private final class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            return BitmapUtils.loadImageByPath(params[0], imageWidth, imageHeight);
+        }
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            if (mainBitmap != null) {
+                mainBitmap.recycle();
+                mainBitmap = null;
+                System.gc();
+            }
+            mainBitmap = result;
+            iv_main_image.setImageBitmap(result);
+        }
+    }// end inner class
+
+
+
+
+
+
+
+
+    // inner class start 滤镜的处理方法，暂时不用
     private class FilterAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         private Context context;
         public FilterAdapter(Context context) {
@@ -191,15 +344,6 @@ public class MainUIActivity extends Activity {
             }
             @Override
             public void onClick(View v) {
-//                if (posi == 0) {
-//                    iv_main_image.setImageBitmap(mainBitmap);
-//                } else {
-//                    Bitmap bitmap = PhotoProcessing.filterPhoto(
-//                            BitmapUtils.loadImage(MainUIActivity.this),
-//                            posi
-//                    );
-//                    iv_main_image.setImageBitmap(bitmap);
-//                }
                 lastClickPosition = clickPosition;
                 FilterTask filterTask = new FilterTask();
                 filterTask.execute(clickPosition + "");
@@ -227,130 +371,6 @@ public class MainUIActivity extends Activity {
                 outRect.top = space;
         }
     }
-
-
-    private class CurrentRadioGroupOnCheckChangeListener implements RadioGroup.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-            switch (checkedId) {
-                case R.id.rb_word:
-                    // Show Text Editor
-
-                    break;
-                case R.id.rb_sticker:
-                    // Show Sticker ImageList RecycleView
-
-                    break;
-                case R.id.rb_filter:
-                    // Show Filter ImageList RecycleView
-
-                    break;
-                default:
-                    System.out.println("出现未知错误：" + checkedId);
-                    break;
-            }
-        }
-    }
-
-    private class SaveClickListener implements View.OnClickListener{
-        @Override
-        public void onClick(View v) {
-            movableTextView2.measure(
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            int textViewL = movableTextView2.getLeft();
-            int textViewT = movableTextView2.getTop();
-            int textViewR = movableTextView2.getRight();
-            int textViewB = movableTextView2.getBottom();
-            float textViewW = movableTextView2.getWidth() * 1.0f;
-            float textViewH = movableTextView2.getHeight() * 1.0f;
-
-            float imgW = iv_main_image.getWidth() * 1.0f;
-            float imgH = iv_main_image.getHeight() * 1.0f;
-            float bitW = copyBitmap.getWidth() * 1.0f;
-            float bitH = copyBitmap.getHeight() * 1.0f;
-
-            scaleXX = bitW / imgW;
-            scaleYY = bitH / imgH;
-            float scale = scaleXX > scaleYY ? scaleXX:scaleYY;
-            System.out.println("scale------:" + scaleXX + ":" + scaleYY);
-            int saveLeft, saveBottom;
-            float leaveW = 0f, leaveH = 0f;
-            if (scaleXX > scaleYY) {
-                leaveH = (imgH - bitH / scale) / 2;
-            } else {
-                leaveW = (imgW - bitW / scale) / 2;
-            }
-
-            float textSize = movableTextView2.getTextSize() * scale;
-            Paint mPaint = new Paint();
-            mPaint.setAntiAlias(true);
-            mPaint.setStrokeWidth(0);
-            mPaint.setTextSize(textSize);
-            mPaint.setColor(Color.BLUE);
-
-            float textSpacing = (textViewH - textSize / scale);     // 获取画笔要绘画的文本的高度
-            System.out.println("textSpacing:" + textSpacing);
-            System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + textSpacing);
-            saveLeft = (int) ((textViewL - leaveW) * scale);
-            saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);//textSpacing
-            System.out.println("save:" + saveLeft + ":" + saveBottom);
-//            设置滤镜
-//            copyBitmap = PhotoProcessing.filterPhoto(copyBitmap, lastClickPosition);
-            Canvas canvas = new Canvas(copyBitmap);
-            canvas.drawText(
-                    movableTextView2.getText().toString(),
-                    saveLeft, saveBottom,
-                    mPaint
-            );
-//            canvas.scale(scale, scale);
-            iv_main_image.setImageBitmap(copyBitmap);
-            // 保存到本地目录中
-            String fileName = "save" + System.currentTimeMillis();
-            String doneWithFileAbs = BitmapUtils.saveBitmap(copyBitmap, fileName);
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-    // ====================task line
-    private LoadImageTask mLoadImageTask;
-    private int imageWidth, imageHeight;		// 展示图片控件 宽 高
-    public void loadImage(String filepath) {
-        if (mLoadImageTask != null) {
-            mLoadImageTask.cancel(true);
-        }
-        mLoadImageTask = new LoadImageTask();
-        mLoadImageTask.execute(filepath);
-    }
-
-    private final class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            return BitmapUtils.loadImageByPath(params[0], imageWidth, imageHeight);
-        }
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            super.onPostExecute(result);
-            if (mainBitmap != null) {
-                mainBitmap.recycle();
-                mainBitmap = null;
-                System.gc();
-            }
-            mainBitmap = result;
-            iv_main_image.setImageBitmap(result);
-        }
-    }// end inner class
-
-
-
 
     private final class FilterTask extends AsyncTask<String, Void, Bitmap> {
         private ProgressDialog loadDialog;

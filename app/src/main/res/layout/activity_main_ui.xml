@@ -1,10 +1,14 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#343535"
     >
-
     <!--<Button-->
         <!--android:onClick="openNative"-->
         <!--android:layout_width="wrap_content"-->
@@ -52,3 +56,18 @@
         />
     <include layout="@layout/layout_bottom_toolbar"/>
 </LinearLayout>
+
+<LinearLayout
+    android:id="@+id/ll_edit_panel"
+    android:visibility="visible"
+    android:background="@android:color/transparent"
+    android:orientation="vertical"
+    android:gravity="bottom"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <include layout="@layout/layout_edit_panel_head" />
+    <include layout="@layout/layout_edit_panel_content"/>
+</LinearLayout>
+
+
+</FrameLayout>

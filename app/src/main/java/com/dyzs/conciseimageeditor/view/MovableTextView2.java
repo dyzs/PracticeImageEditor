@@ -168,6 +168,38 @@ public class MovableTextView2 extends TextView{
 
 
 
+//    //标题的双击事件
+//    public void tv_btnnnnnnnnnnn(View v){
+//        /**
+//         * src the source array to copy the content. 拷贝的原数组 srcPos the
+//         * starting index of the content in src. 从原数组的那个位置开始拷贝 dst the
+//         * destination array to copy the data into. 拷贝目标数组 dstPos the
+//         * starting index for the copied content in dst. 从目标数组的那个位置去写
+//         * length the number of elements to be copied. 拷贝的长度
+//         */
+//        //表示从原数组的 1 拷贝给 0 的位置，拷贝一个，所以长度为 length -1
+//        System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
+//        //获取离开机的时间，毫秒值，不包含手机休眠时间
+//        mHits[mHits.length-1] = SystemClock.uptimeMillis();
+//        //判断数组的第一个元素去是否再次获取离开机的时间再减去300毫秒大，如果大于执行点击操作，小于则不执行
+//        if(mHits[0] >= (SystemClock.uptimeMillis() - 300)){
+//            System.out.println("我被点击了");
+//            if(longClickCount == 0){
+//                tv_softwaremanager_storage.setVisibility(View.INVISIBLE);
+//                longClickCount ++ ;
+//            }else{
+//                tv_softwaremanager_storage.setVisibility(View.VISIBLE);
+//                longClickCount -- ;
+//            }
+//        }
+//    }
+
+
+
+
+
+
+
 
 
 

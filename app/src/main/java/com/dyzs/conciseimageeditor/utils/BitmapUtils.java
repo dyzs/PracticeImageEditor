@@ -392,8 +392,7 @@ public class BitmapUtils {
 	 * 将生成的图片保存到内存中
 	 * @return string fileAbsPath
 	 */
-	public static String saveBitmap(Bitmap bitmap, String name)
-	{
+	public static String saveBitmap(Bitmap bitmap, String name) {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			File dir = new File(Const.SAVE_DIR);
 			if (!dir.exists()) dir.mkdir();
@@ -401,10 +400,9 @@ public class BitmapUtils {
 			FileOutputStream out;
 			try {
 				out = new FileOutputStream(file);
-				if (bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)) {
-					out.flush();
-					out.close();
-				}
+				bitmap.compress(CompressFormat.JPEG, 100, out);
+				out.flush();
+				out.close();
 				return file.getAbsolutePath();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -863,6 +861,7 @@ public class BitmapUtils {
 		BitmapFactory.decodeResource(context.getResources(), resId, opts);
 		final int height = opts.outHeight;
 		final int width = opts.outWidth;
+		System.out.println("loadImage 原图width：" + width + "/" + height);
 		int inSampleSize = 1;
 		if (height > imgHeight || width > imgWidth) {
 			if (width > height) {
@@ -877,6 +876,7 @@ public class BitmapUtils {
 		opts.inJustDecodeBounds = false;
 		System.out.println("得到的缩放比例为：" + inSampleSize);
 		Bitmap copyImg = BitmapFactory.decodeResource(context.getResources(), resId, opts);
-		return copyImg;
+		Bitmap test = BitmapFactory.decodeResource(context.getResources(), resId);
+		return test;
 	}
 }
