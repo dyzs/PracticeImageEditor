@@ -9,8 +9,8 @@ import android.view.ViewTreeObserver;
  * Created by liujinhua on 15/10/25.
  */
 public class SoftKeyBoardListener {
-    private View rootView;//activity的根视图
-    int rootViewVisibleHeight;//纪录根视图的显示高度
+    private View rootView;          //activity的根视图
+    int rootViewVisibleHeight;      //纪录根视图的显示高度
     private OnSoftKeyBoardChangeListener onSoftKeyBoardChangeListener;
 
     public SoftKeyBoardListener(Activity activity) {

@@ -13,22 +13,28 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dyzs.conciseimageeditor.view.QuickOptionDialog;
+import com.dyzs.conciseimageeditor.utils.ScreenUtils;
+import com.dyzs.conciseimageeditor.view.MovableTextView;
 import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
 import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
@@ -45,12 +51,11 @@ public class MainUIActivity extends Activity {
     private RecyclerView mRecyclerView_filter_list;
     // bottomToolbar
     private RadioGroup main_radio;
+    private RadioButton rb_word;
 
     // tempTest
-    private MovableTextView2 movableTextView2;
-    private HashMap<Integer, MovableTextView2> mMoveTextView;
-
-
+    private ArrayList<MovableTextView> mMtvLists;
+    private HashMap<Integer, MovableTextView> mMtvHashmap;
 
 
     private Bitmap mainBitmap;
@@ -69,6 +74,16 @@ public class MainUIActivity extends Activity {
     private static int mCurrImgId = R.mipmap.pic_bg_ch_style;
     public int keyboardHeight = 0;
     private LinearLayout ll_edit_panel;
+    private View edit_panel_not_used;
+    private LinearLayout ll_edit_panel_head;
+
+    private EditText et_input_text;
+
+
+    private SeekBar sb_fontSize;
+
+    private boolean writeClickCount = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +92,8 @@ public class MainUIActivity extends Activity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_main_ui);
         mContext = this;
-        mMoveTextView = new HashMap<>();
+        mMtvLists = new ArrayList<>();
+        mMtvHashmap = new HashMap<>();
         initView();
         // 加载图片
         loadBitmap();
@@ -89,6 +105,7 @@ public class MainUIActivity extends Activity {
         imageWidth = (int) ((float) metrics.widthPixels / 1.5);
         imageHeight = (int) ((float) metrics.heightPixels / 1.5);
         System.out.println("imageWidth------:" + imageWidth + ":" + imageHeight);
+
         fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
         rl_work_panel = (RelativeLayout) findViewById(R.id.rl_work_panel);
         // topBar
@@ -107,13 +124,18 @@ public class MainUIActivity extends Activity {
         iv_main_image = (ImageView) findViewById(R.id.iv_main_image);
         // bottomToolbar
         main_radio = (RadioGroup) findViewById(R.id.main_radio);
-        movableTextView2 = new MovableTextView2(getApplicationContext());
-        movableTextView2.setTextSize(getResources().getDimension(R.dimen.movable_text_view_default_text_size));
-        movableTextView2.setText("请输入文字~");
+        rb_word = (RadioButton) findViewById(R.id.rb_word);
+
 
         ll_edit_panel = (LinearLayout) findViewById(R.id.ll_edit_panel);
-        ll_edit_panel.setVisibility(View.INVISIBLE);
+        edit_panel_not_used = findViewById(R.id.edit_panel_not_used);
+        ll_edit_panel_head = (LinearLayout) findViewById(R.id.ll_edit_panel_head);
+        et_input_text = (EditText) findViewById(R.id.et_input_text);
 
+        sb_fontSize = (SeekBar) findViewById(R.id.sb_fontSize);
+
+
+        ll_edit_panel.setVisibility(View.INVISIBLE);
     }
     private void loadBitmap() {
 //        String filePath = "file:/" + Environment.getExternalStorageDirectory().getPath()
@@ -131,13 +153,30 @@ public class MainUIActivity extends Activity {
 //        rl_work_panel.measure(
 //                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
 //                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        fl_main_content.addView(movableTextView2);
     }
 
     private void handleListener() {
         bt_save.setOnClickListener(new SaveClickListener());
+        iv_main_image.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // 先关闭软盘
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                Toast.makeText(mContext, "image view is click", Toast.LENGTH_SHORT).show();
+                addMovableTextView();
+                return false;
+            }
+        });
+
         main_radio.setOnCheckedChangeListener(new CurrentRadioGroupOnCheckChangeListener());
-        movableTextView2.setOnCustomClickListener(new MTVClickListener());
+        rb_word.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDataAndOpenPanelEdit();
+            }
+        });
+
+
         // 监听获取键盘高度, 只能监听到打开与关闭
         SoftKeyBoardListener.setListener(MainUIActivity.this, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
             @Override
@@ -153,26 +192,35 @@ public class MainUIActivity extends Activity {
                 }
             }
         });
+
+        edit_panel_not_used.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ll_edit_panel.getVisibility() == View.VISIBLE) {
+                    ll_edit_panel.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        et_input_text.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                System.out.println("hasFocus value:" + hasFocus);
+                if (hasFocus == false) {
+                    // 关闭软键盘
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(et_input_text.getWindowToken(),0);
+                }
+            }
+        });
     }
 
-
-    // --- listener 底部的 RadioGroup, 切换监听,
-    private class CurrentRadioGroupOnCheckChangeListener implements RadioGroup.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(RadioGroup group, int checkedId) {
-            switch (checkedId) {
-                case R.id.rb_word:
-                    // Show Text Editor
-                    break;
-                case R.id.rb_sticker:
-                    // Show Sticker ImageList RecycleView
-                    break;
-                case R.id.rb_filter:
-                    // Show Filter ImageList RecycleView
-                    break;
-                default:
-                    System.out.println("出现未知错误：" + checkedId);
-                    break;
+    private void getDataAndOpenPanelEdit() {
+        ll_edit_panel.setVisibility(View.VISIBLE);
+        for (MovableTextView mtv:mMtvLists) {
+            if (mtv.hasFocus()) {
+                float textSize = mtv.getTextSize();
+                sb_fontSize.setProgress(25);
             }
         }
     }
@@ -180,59 +228,63 @@ public class MainUIActivity extends Activity {
     private class SaveClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            movableTextView2.measure(
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            int textViewL = movableTextView2.getLeft();
-            int textViewT = movableTextView2.getTop();
-            int textViewR = movableTextView2.getRight();
-            int textViewB = movableTextView2.getBottom();
-            float textViewW = movableTextView2.getWidth() * 1.0f;
-            float textViewH = movableTextView2.getHeight() * 1.0f;
+            if (mMtvLists.size() <= 0) return;
 
-            float imgW = iv_main_image.getWidth() * 1.0f;
-            float imgH = iv_main_image.getHeight() * 1.0f;
-            float bitW = copyBitmap.getWidth() * 1.0f;
-            float bitH = copyBitmap.getHeight() * 1.0f;
-
-            scaleXX = bitW / imgW;
-            scaleYY = bitH / imgH;
-            float scale = scaleXX > scaleYY ? scaleXX:scaleYY;
-            System.out.println("scale------:" + scaleXX + ":" + scaleYY);
             int saveLeft, saveBottom;
             float leaveW = 0.0f, leaveH = 0.0f;
-            if (scaleXX > scaleYY) {
-                leaveH = (imgH - bitH / scale) / 2;
-            } else {
-                leaveW = (imgW - bitW / scale) / 2;
-            }
 
-            float textSize = movableTextView2.getTextSize() * scale;
             Paint mPaint = new Paint();
             mPaint.setAntiAlias(true);
             mPaint.setStrokeWidth(0);
-            mPaint.setTextSize(textSize);
             mPaint.setColor(Color.BLUE);
-
-            float textSpacing = (textViewH - textSize / scale);    // 获取画笔要绘画的文本的高度
-            System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + textSpacing);
-            saveLeft = (int) ((textViewL - leaveW) * scale);
-            saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);
-            System.out.println("save:" + saveLeft + ":" + saveBottom);
 //            处理滤镜
 //            copyBitmap = PhotoProcessing.filterPhoto(copyBitmap, lastClickPosition);
             Canvas canvas = new Canvas(copyBitmap);
-            canvas.drawText(
-                    movableTextView2.getText().toString(),
-                    saveLeft, saveBottom,
-                    mPaint
-            );
-//            canvas.scale(scale, scale);
+            for (MovableTextView mtv:mMtvLists){
+                mtv.measure(
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST));
+                int textViewL = mtv.getLeft();
+                int textViewT = mtv.getTop();
+                int textViewR = mtv.getRight();
+                int textViewB = mtv.getBottom();
+                float textViewW = mtv.getWidth() * 1.0f;
+                float textViewH = mtv.getHeight() * 1.0f;
+
+                float imgW = iv_main_image.getWidth() * 1.0f;
+                float imgH = iv_main_image.getHeight() * 1.0f;
+                float bitW = copyBitmap.getWidth() * 1.0f;
+                float bitH = copyBitmap.getHeight() * 1.0f;
+                scaleXX = bitW / imgW;
+                scaleYY = bitH / imgH;
+                float scale = scaleXX > scaleYY ? scaleXX : scaleYY;
+                System.out.println("scale------:" + scaleXX + ":" + scaleYY);
+                if (scaleXX > scaleYY) {
+                    leaveH = (imgH - bitH / scale) / 2;
+                } else {
+                    leaveW = (imgW - bitW / scale) / 2;
+                }
+
+                float textSize = mtv.getTextSize() * scale;
+                mPaint.setTextSize(textSize);
+                float textSpacing = (textViewH - textSize / scale);    // 获取画笔要绘画的文本的高度
+                System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + textSpacing);
+                saveLeft = (int) ((textViewL - leaveW) * scale);
+                saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);
+                System.out.println("save:" + saveLeft + ":" + saveBottom);
+                canvas.drawText(
+                        mtv.getText().toString(),
+                        saveLeft, saveBottom,
+                        mPaint
+                );
+                // 把mtv从父控件中移除
+//                fl_main_content.removeView(mtv);
+            }
             iv_main_image.setImageBitmap(copyBitmap);
+            mMtvLists.clear();
             // 保存到本地目录中
             String fileName = "save" + System.currentTimeMillis();
             String doneWithFileAbs = BitmapUtils.saveBitmap(copyBitmap, fileName);
-            //
         }
     }
 
@@ -240,26 +292,15 @@ public class MainUIActivity extends Activity {
     private class MTVClickListener implements MovableTextView2.OnCustomClickListener {
         @Override
         public void onCustomClick() {
-            // Toast.makeText(getApplicationContext(), "我是文本控件，", Toast.LENGTH_SHORT).show();
-//            showQuickOption();
-            ll_edit_panel.setVisibility(View.VISIBLE);
-            
+            writeClickCount = true;
+            if (writeClickCount) {
+//                ll_edit_panel.setVisibility(View.VISIBLE);
+//                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            } else {
+//                ll_edit_panel.setVisibility(View.INVISIBLE);
+            }
         }
     }
-
-    // 显示快速操作界面
-    private void showQuickOption() {
-        final QuickOptionDialog dialog = new QuickOptionDialog(
-                MainUIActivity.this, movableTextView2);
-        dialog.setCancelable(true);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-    }
-
-
-
-
-
 
 
     // ====================task line
@@ -290,11 +331,95 @@ public class MainUIActivity extends Activity {
         }
     }// end inner class
 
+    private int addMtvChildCount = 0;
+    private String text = "请输入文字~";
+    private void addMovableTextView() {
+        final MovableTextView mtv = new MovableTextView(mContext);
+        mtv.setTextColor(Color.RED);
+        mtv.setParentFrameLayout(fl_main_content);
+        mtv.setLongClickable(false);    //取消长按出现剪贴，复制，粘贴
+        mtv.addTextChangedListener(new TextInputListener());//添加文本监听器
+        mtv.setOnMoveListener(new MovableTextView.OnMoveListener() {
+            @Override
+            public void onMoveComplete(double x, double y) {
+                x *= ScreenUtils.getScreenWidth(mContext);
+                y *= ScreenUtils.getScreenHeight(mContext);
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mtv.getLayoutParams();
+                lp.gravity = -1;
+                lp.leftMargin = (int) x;
+                lp.topMargin = (int) y;
+                lp.rightMargin = (int) (mtv.getParentWidth() - x - mtv.getMeasuredWidth());
+                lp.bottomMargin = 0;
+                mtv.setLayoutParams(lp);
+            }
+        });
+        // 拖动中（按下后抬起前）关闭软键盘
+        mtv.setmOnMovinglistener(new MovableTextView.OnMovingListener() {
+            @Override
+            public void onMovingComplete() {
+                mtv.clearFocus();
+                // 关闭虚拟键盘
+                InputMethodManager inputManger = (InputMethodManager) mContext.getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                inputManger.hideSoftInputFromWindow(mtv.getWindowToken(), 0);
+            }
+        });
+
+
+        fl_main_content.addView(mtv);
+        mMtvLists.add(mtv);
+        System.out.println("mMtvLists count:" + mMtvLists.size());
+    }
+
+    /**
+     * 监控用户输入
+     */
+    private class TextInputListener implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                                      int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    }
 
 
 
 
 
+
+
+
+
+
+    // --- listener 底部的 RadioGroup, 切换监听
+    private class CurrentRadioGroupOnCheckChangeListener implements RadioGroup.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            switch (checkedId) {
+                case R.id.rb_word:
+                    // Show Text Editor
+                    break;
+                case R.id.rb_sticker:
+                    // Show Sticker ImageList RecycleView
+                    break;
+                case R.id.rb_filter:
+                    // Show Filter ImageList RecycleView
+                    break;
+                default:
+                    System.out.println("出现未知错误：" + checkedId);
+                    break;
+            }
+        }
+    }
 
 
     // inner class start 滤镜的处理方法，暂时不用
@@ -315,7 +440,7 @@ public class MainUIActivity extends Activity {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context).inflate(R.layout.view_filter_item, null);
+            View view = LayoutInflater.from(context).inflate(R.layout.item_recycle_view_filter, null);
             FilterHolder holder = new FilterHolder(view);
             return holder;
         }
@@ -406,4 +531,15 @@ public class MainUIActivity extends Activity {
             loadDialog.dismiss();
         }
     }// end inner class
+
+
+
+    // 显示dialog     useless
+//    private void showQuickOption() {
+//        final QuickOptionDialog dialog = new QuickOptionDialog(
+//                MainUIActivity.this, movableTextView2);
+//        dialog.setCancelable(true);
+//        dialog.setCanceledOnTouchOutside(true);
+//        dialog.show();
+//    }
 }

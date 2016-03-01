@@ -22,7 +22,7 @@ public interface Const {
     // 文件的子目录
     String ANIMAL           = STICKER + "dongwu";    // 动物
     String MOOD             = STICKER + "xinqing";   // 心情
-    String COS              = STICKER + "cos";       // Cosplay
+    String COS              = STICKER + "cos";       // CosPlay
     String SYMBOL           = STICKER + "fuhao";     // 符号
     String DECORATION       = STICKER + "shipin";    // 饰品
     String SPRING_FESTIVAL  = STICKER + "chunjie";   // 春节
@@ -33,4 +33,11 @@ public interface Const {
 
     String TEMP = SDCARD_ROOT + "/anybeenImageEditor/stickers/";
 
+
+    String TYPE_FACE_PATH = FILE_PREFIX + SDCARD_ROOT + "/anybeen/fonts/";
+    String TYPE_DEFAULT = TYPE_FACE_PATH + "";
+    String TYPE_STEADY = TYPE_FACE_PATH + "steady.ttf";
+    String TYPE_HANDSOME = TYPE_FACE_PATH + "handsome.ttf";
+    String TYPE_GIRLS = TYPE_FACE_PATH + "girls.ttf";
+    String TYPE_SCREAM = TYPE_FACE_PATH + "scream.ttf";
 }

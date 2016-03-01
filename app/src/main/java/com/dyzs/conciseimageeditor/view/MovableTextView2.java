@@ -2,35 +2,31 @@ package com.dyzs.conciseimageeditor.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 
 import com.dyzs.conciseimageeditor.R;
+import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 
 /**
  * Created by maidou on 2016/2/19.
  */
-public class MovableTextView2 extends TextView{
+public class MovableTextView2 extends EditText{
     public MovableTextView2(Context context) {
         this(context, null);
     }
-
     public MovableTextView2(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
-
     public MovableTextView2(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
-
     private void init() {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -63,12 +59,10 @@ public class MovableTextView2 extends TextView{
 
     private int startX;
     private int startY;
-
     private int checkStartX;
     private int checkStartY;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // this.getParentParams();
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
             startX = (int) event.getRawX();
@@ -102,46 +96,42 @@ public class MovableTextView2 extends TextView{
             operateState = OperateState.STATE_MOVING;
             return true;
         case MotionEvent.ACTION_UP:
+            getParentParams();
+//            if (mOnActionUpListener != null) {
+//                mOnActionUpListener.getLtrb(getLeft(), getTop(), getRight(), getBottom());
+//            }
             operateState = OperateState.STATE_UNSELECTED;
             int upX = (int) event.getRawX();
             int upY = (int) event.getRawY();
             if (Math.abs(upX - checkStartX) < 15 && Math.abs(upY - checkStartY) < 15) {
-                System.out.println("go click event");
                 if (mOnCustomClickListener != null) {
                     mOnCustomClickListener.onCustomClick();
                 }
                 // 不让滑动事件继续消费当前事件
                 return false;
             }
-            finalLeft = this.getLeft();
-            finalTop = this.getTop();
-            // 保存值集合,可以用来做reload
-            if (mOnActionUpListener != null) {
-                mOnActionUpListener.getStartPosition(finalLeft, finalTop);
-            }
-            // return true;
             break;
         default:
             break;
         }
         return super.onTouchEvent(event);
     }
-    private int finalLeft;
-    private int finalTop;
-    public int getFinalLeft() {
-        return finalLeft;
-    }
 
-    public int getFinalTop() {
-        return finalTop;
+    private void getParentParams() {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) getLayoutParams();
+        lp.gravity = -1;
+        lp.leftMargin = getLeft();
+        lp.topMargin = getTop();
+        lp.rightMargin = BitmapUtils.getScreenPixels(getContext()).widthPixels - getLeft() - this.getMeasuredWidth();
+        lp.bottomMargin = 0;
+        setLayoutParams(lp);
+//        lp.rightMargin = fl_main_content.getWidth() - left - movableTextView2.getMeasuredWidth();
+//        lp.bottomMargin = 0;
     }
     /**
      * 用来代替点击事件
      */
     private OnCustomClickListener mOnCustomClickListener;
-
-
-
     public interface OnCustomClickListener {
         void onCustomClick();
     }
@@ -154,7 +144,7 @@ public class MovableTextView2 extends TextView{
 
     private OnActionUpListener mOnActionUpListener;
     public interface OnActionUpListener {
-        void getStartPosition(int startX, int startY);
+        void getLtrb(int left, int top, int right, int bottom);
     }
     public void setOnActionUpListener(OnActionUpListener listener) {
         if (listener != null) {

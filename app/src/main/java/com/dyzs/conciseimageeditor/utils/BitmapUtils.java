@@ -44,7 +44,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import com.dyzs.conciseimageeditor.R;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
 
 import java.io.ByteArrayInputStream;
@@ -59,7 +58,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -423,13 +421,13 @@ public class BitmapUtils {
 	public static float getScale(Bitmap bitmap, Context context) {
 		int bitmapWidth = bitmap.getWidth();
 		int bitmapHeight = bitmap.getHeight();
-		DisplayMetrics outMetrics = getScreenWidth(context);
+		DisplayMetrics outMetrics = getScreenPixels(context);
 		int displayW = outMetrics.widthPixels;
 		int displayH = outMetrics.heightPixels;
 		float scale = bitmapHeight > bitmapWidth ? displayH / (bitmapHeight * 1f) : displayW / (bitmapWidth * 1f);
 		return scale;
 	}
-	public static DisplayMetrics getScreenWidth(Context context) {
+	public static DisplayMetrics getScreenPixels(Context context) {
 		WindowManager wm = (WindowManager) context
 				.getSystemService(Context.WINDOW_SERVICE);
 		DisplayMetrics outMetrics = new DisplayMetrics();
