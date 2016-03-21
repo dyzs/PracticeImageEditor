@@ -93,7 +93,7 @@ public class MainUIActivity extends Activity {
     private KeyboardState mCurKeyboardState;
 
     private enum KeyboardState {
-        STATE_OPEN, STATE_HIDE;
+        STATE_OPEN, STATE_HIDE
     }
 
     @Override
@@ -120,9 +120,6 @@ public class MainUIActivity extends Activity {
 
         // reloadSticker();
         reloadStickerMore();
-
-        // 设置启动不弹出软键盘, 这样就可以监听到键盘的高度了, 得到键盘高度后再重新绘制
-
     }
 
 
@@ -168,11 +165,7 @@ public class MainUIActivity extends Activity {
         mainBitmap = BitmapUtils.loadImage(this, mCurrImgId, imageWidth, imageHeight);
         copyBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true);
         iv_main_image.setImageBitmap(copyBitmap);
-
-        /**
-         * 计算图片加载后与屏幕的缩放比与留白区域
-         */
-        calcScaleAndLeaveSize();
+        System.out.println("Image View:" + iv_main_image.getHeight());
     }
 
     private void handleListener() {
@@ -237,14 +230,30 @@ public class MainUIActivity extends Activity {
             }
         });
 
-
+        iv_main_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideEditPanelAndCloseKb();
+            }
+        });
     }
 
+    private void hideEditPanelAndCloseKb() {
+        if (edit_panel.getVisibility() == View.VISIBLE) {
+            edit_panel.setVisibility(View.INVISIBLE);
+        }
+        if (mCurKeyboardState == KeyboardState.STATE_OPEN) {
+            mCurKeyboardState = KeyboardState.STATE_HIDE;
+            CommonUtils.hitKeyboardOpenOrNot(mContext);
+        }
+    }
 
 
     private class SaveClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
+            // 在图片全部逻辑加载完成后，计算图片加载后与屏幕的缩放比与留白区域
+            calcScaleAndLeaveSize();
             Canvas canvas = new Canvas(copyBitmap);
             saveStickerViews(canvas);
 
@@ -586,13 +595,12 @@ public class MainUIActivity extends Activity {
         float scale = scaleX > scaleY ? scaleX:scaleY;
         float leaveW = 0.0f, leaveH = 0.0f;     // 留白区域
         if (scaleX > scaleY) {
-            leaveH = (svHeight -  copyBitHeight/ scale) / 2;
+            leaveH = (svHeight -  copyBitHeight / scale) / 2;
         } else {
             leaveW = (svWidth - copyBitWidth / scale) / 2;
         }
-        System.out.println(copyBitWidth + ":cp params:" + copyBitHeight);
-        System.out.println(svWidth + ":sticker params:" + svHeight);
-        System.out.println("scale------:" + scaleX + ":" + scaleY);
+        System.out.println(":imageView save params:" + svHeight);
+        System.out.println(scale + "scale------:" + scaleX + ":" + scaleY);
         scaleAndLeaveSize[0] = scale;       // 表示图片与屏幕的缩放比
         scaleAndLeaveSize[1] = leaveW;      // 表示图片的X轴留白区域
         scaleAndLeaveSize[2] = leaveH;      // 表示图片的Y轴留白区域
@@ -684,23 +692,22 @@ public class MainUIActivity extends Activity {
     }
 
     /**
-     * @details 保存贴纸啦
+     * @details 保存贴纸
      * @param canvas
      */
     private void saveStickerViews(Canvas canvas) {
         if (mStickerViewLists == null || mStickerViewLists.size() <= 0) {
             return;
         }
-        // TODO
         float leaveH = 0f, leaveW = 0f, scale = 0f;
+        scale  = scaleAndLeaveSize[0];   // 原图与ImageView的缩放比例
+        leaveW = scaleAndLeaveSize[1];   // 图片自动缩放时造成的留白区域
+        leaveH = scaleAndLeaveSize[2];
+        canvas.scale(scale, scale);
+        canvas.translate(-leaveW, -leaveH);
         ArrayList<MatrixInfo> matrixInfoArrayList = new ArrayList<>();
         MatrixInfo matrixInfo;
         for(StickerView sv:mStickerViewLists) {
-            scale  = scaleAndLeaveSize[0];
-            leaveW = scaleAndLeaveSize[1];   // 图片自动缩放时造成的留白区域
-            leaveH = scaleAndLeaveSize[2];
-            canvas.scale(scale, scale);
-            canvas.translate(-leaveW, -leaveH);
             canvas.drawBitmap(sv.getBitmap(), sv.saveMatrix(), null);
             matrixInfo = new MatrixInfo();
             matrixInfo.floatArr = sv.saveMatrixFloatArray();
