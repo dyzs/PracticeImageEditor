@@ -3,22 +3,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_edit_panel_head"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="50dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
     android:orientation="horizontal"
     android:layout_gravity="bottom"
-    android:background="@color/gray_5b"
-    android:visibility="gone"
+    android:background="@android:color/holo_red_light"
+    android:visibility="visible"
     >
     <ImageView
         android:visibility="gone"
         android:id="@+id/iv_mode"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:background="@mipmap/btn_tab_word_pressed"
+        android:background="@mipmap/btn_image_editor_tab_word_pressed"
         />
     <!--android:imeOptions="flagNoExtractUi" 表示不挤压界面-->
     <EditText

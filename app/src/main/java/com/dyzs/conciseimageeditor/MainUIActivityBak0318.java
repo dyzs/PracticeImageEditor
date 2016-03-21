@@ -5,6 +5,7 @@
 //import android.content.Context;
 //import android.graphics.Bitmap;
 //import android.graphics.BitmapFactory;
+//import android.graphics.Canvas;
 //import android.graphics.Rect;
 //import android.os.AsyncTask;
 //import android.os.Bundle;
@@ -14,6 +15,7 @@
 //import android.view.LayoutInflater;
 //import android.view.View;
 //import android.view.ViewGroup;
+//import android.view.ViewTreeObserver;
 //import android.view.Window;
 //import android.view.WindowManager;
 //import android.view.inputmethod.InputMethodManager;
@@ -26,14 +28,17 @@
 //import android.widget.RelativeLayout;
 //import android.widget.TextView;
 //
-//import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
+//import com.dyzs.conciseimageeditor.entity.MatrixInfo;
 //import com.dyzs.conciseimageeditor.utils.BitmapUtils;
+//import com.dyzs.conciseimageeditor.utils.FileUtils;
+//import com.dyzs.conciseimageeditor.utils.ToastUtil;
 //import com.dyzs.conciseimageeditor.view.MovableTextView2;
+//import com.dyzs.conciseimageeditor.view.StickerView;
+//import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
 //
 //import java.util.ArrayList;
-//import java.util.HashMap;
 //
-//public class MainUIActivity extends Activity {
+//public class MainUIActivityBak0318 extends Activity {
 //    private Context mContext;
 //    // topToolbar
 //    private ImageView bt_save;
@@ -43,34 +48,39 @@
 //    // bottomToolbar
 //    private RadioGroup main_radio;
 //    private RadioButton rb_word;
+//    private RadioButton rb_sticker;
 //
 //    // tempTest
 //    private ArrayList<MovableTextView2> mMtvLists;
-//    private HashMap<Integer, MovableTextView2> mMtvHashmap;
 //
 //
 //    private Bitmap mainBitmap;
 //    private Bitmap copyBitmap;
 //    private Bitmap filterSampleIconBitmap;
-//    private float scaleXX;
-//    private float scaleYY;
 //
 //    private FrameLayout fl_main_content;
 //    private RelativeLayout rl_work_panel;
 //
-//    // 保存最后一次点击的滤镜的item
-//    private int lastClickPosition = 0;
 //
-//
-//    private static int mCurrImgId = R.mipmap.pic_bg_ch_style;
+//    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x003;
 //    public int keyboardHeight = 0;
 //    private LinearLayout ll_edit_panel;
 //    private View edit_panel_not_used;
 //    private LinearLayout ll_edit_panel_head;
+//    private LinearLayout ll_edit_panel_content;
 //
 //    private EditText et_input_text;
 //
 //    private boolean writeClickCount = false;
+//
+//    //存储贴纸列表
+//    private ArrayList<View> mViews;
+//
+//    //当前处于编辑状态的贴纸
+//    private StickerView mCurrentView;
+//
+//    private ArrayList<StickerView> mStickerViewLists;
+//    private float[] scaleAndLeaveSize;
 //
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +91,67 @@
 //        setContentView(R.layout.activity_main_ui);
 //        mContext = this;
 //        mMtvLists = new ArrayList<>();
-//        mMtvHashmap = new HashMap<>();
+//        mViews = new ArrayList<>();
+//        mStickerViewLists = new ArrayList<>();
+//
+//
+//
 //        initView();
 //        // 加载图片
 //        loadBitmap();
 //
 //        handleListener();
+//
+//        // reloadSticker();
+//        reloadStickerMore();
+//
+//        testKeyboard();
 //    }
+//    private int mVisibleHeight;
+//    private void testKeyboard() {
+//        et_input_text.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                Rect r = new Rect();
+//                et_input_text.getWindowVisibleDisplayFrame(r);
+//                int visibleHeight = r.height();
+//                if (mVisibleHeight == 0) {
+//                    mVisibleHeight = visibleHeight;
+//                    return;
+//                }
+//                if (mVisibleHeight == visibleHeight) {
+//                    return;
+//                }
+//                mVisibleHeight = visibleHeight;
+//                System.out.println("mVisibleHeight-----:" + mVisibleHeight);
+//            }
+//        });
+//    }
+//    private void calcScaleAndLeaveSize() {
+//        if (copyBitmap == null) {return;}
+//        scaleAndLeaveSize = new float[3];
+//        float svWidth = iv_main_image.getWidth() * 1.0f;
+//        float svHeight = iv_main_image.getHeight() * 1.0f;
+//        float copyBitWidth = copyBitmap.getWidth() * 1.0f;
+//        float copyBitHeight = copyBitmap.getHeight() * 1.0f;
+//
+//        float scaleX = copyBitWidth / svWidth;
+//        float scaleY = copyBitHeight / svHeight;
+//        float scale = scaleX > scaleY ? scaleX:scaleY;
+//        float leaveW = 0.0f, leaveH = 0.0f;     // 留白区域
+//        if (scaleX > scaleY) {
+//            leaveH = (svHeight -  copyBitHeight/ scale) / 2;
+//        } else {
+//            leaveW = (svWidth - copyBitWidth / scale) / 2;
+//        }
+//        System.out.println(copyBitWidth + ":cp params:" + copyBitHeight);
+//        System.out.println(svWidth + ":sticker params:" + svHeight);
+//        System.out.println("scale------:" + scaleX + ":" + scaleY);
+//        scaleAndLeaveSize[0] = scale;       // 表示图片与屏幕的缩放比
+//        scaleAndLeaveSize[1] = leaveW;      // 表示图片的X轴留白区域
+//        scaleAndLeaveSize[2] = leaveH;      // 表示图片的Y轴留白区域
+//    }
+//
 //    private void initView() {
 //        DisplayMetrics metrics = getResources().getDisplayMetrics();
 //        imageWidth = (int) ((float) metrics.widthPixels / 1.5);
@@ -113,11 +177,12 @@
 //        // bottomToolbar
 //        main_radio = (RadioGroup) findViewById(R.id.main_radio);
 //        rb_word = (RadioButton) findViewById(R.id.rb_word);
-//
+//        rb_sticker = (RadioButton) findViewById(R.id.rb_sticker);
 //
 //        ll_edit_panel = (LinearLayout) findViewById(R.id.ll_edit_panel);
 //        edit_panel_not_used = findViewById(R.id.edit_panel_not_used);
 //        ll_edit_panel_head = (LinearLayout) findViewById(R.id.ll_edit_panel_head);
+//        ll_edit_panel_content = (LinearLayout) findViewById(R.id.ll_edit_panel_content);
 //
 //        et_input_text = (EditText) findViewById(R.id.et_input_text);
 //
@@ -132,14 +197,10 @@
 ////        mainBitmap = loadImage();
 //        mainBitmap = BitmapUtils.loadImage(this, mCurrImgId, imageWidth, imageHeight);
 //        copyBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true);
-//        System.out.println("mainBitmap------:" + mainBitmap.getWidth() + ":" + mainBitmap.getHeight());
 //        iv_main_image.setImageBitmap(copyBitmap);
-////        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-////                copyBitmap.getWidth(), copyBitmap.getHeight());
-////        rl_work_panel.setLayoutParams(layoutParams);
-////        rl_work_panel.measure(
-////                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-////                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+//
+//        // 计算图片加载后与屏幕的缩放比与留白区域
+//        calcScaleAndLeaveSize();
 //    }
 //
 //    private void handleListener() {
@@ -152,9 +213,16 @@
 //            }
 //        });
 //
+//        rb_sticker.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                addStickerView();
+//            }
+//        });
+//
 //
 //        // 监听获取键盘高度, 只能监听到打开与关闭
-//        SoftKeyBoardListener.setListener(MainUIActivity.this, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+//        SoftKeyBoardListener.setListener(MainUIActivityBak0318.this, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
 //            @Override
 //            public void keyBoardShow(int height) {
 //                if (height != 0) {
@@ -184,16 +252,104 @@
 //                System.out.println("hasFocus value:" + hasFocus);
 //                if (hasFocus == false) {
 //                    // 关闭软键盘
-//                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(et_input_text.getWindowToken(),0);
+//                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(et_input_text.getWindowToken(), 0);
 //                }
 //            }
 //        });
 //    }
 //
+//    /**
+//     * @details 重新载入多个贴纸
+//     */
+//    private void reloadStickerMore() {
+//        ArrayList<MatrixInfo> matrixInfoLists = FileUtils.readFileToMatrixInfoLists();
+//        if (matrixInfoLists == null)return;
+//        for (MatrixInfo matrixInfo: matrixInfoLists) {
+//            float[] floats = matrixInfo.floatArr;
+//            final StickerView stickerView = new StickerView(this);
+//            stickerView.setImageResource(R.mipmap.ic_cat);
+//            stickerView.reloadBitmapAfterOnDraw(floats);
+//            stickerView.setOperationListener(new StickerView.OperationListener() {
+//                @Override
+//                public void onDeleteClick() {
+//                    mViews.remove(stickerView);
+//                    fl_main_content.removeView(stickerView);
+//                }
+//
+//                @Override
+//                public void onEdit(StickerView stickerView) {
+//                    mCurrentView.setInEdit(false);
+//                    mCurrentView = stickerView;
+//                    mCurrentView.setInEdit(true);
+//                }
+//                @Override
+//                public void onTop(StickerView stickerView) {
+//                    int position = mViews.indexOf(stickerView);
+//                    if (position == mViews.size() - 1) {
+//                        return;
+//                    }
+//                    StickerView stickerTemp = (StickerView) mViews.remove(position);
+//                    mViews.add(mViews.size(), stickerTemp);
+//                }
+//            });
+//            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+//            fl_main_content.addView(stickerView, lp);
+//            mViews.add(stickerView);
+//            setCurrentEdit(stickerView);
+//        }
+//    }
+//
+//    /**
+//     * @details 在打开的时候载入单个贴纸
+//     */
+//    private void reloadSticker() {
+//        MatrixInfo matrixInfo = FileUtils.readFileToMatrixInfo();
+//        if (matrixInfo == null)return;
+//        float[] floats = matrixInfo.floatArr;
+//        final StickerView stickerView = new StickerView(this);
+//        stickerView.setImageResource(R.mipmap.ic_cat);
+//        // maidou add
+//        stickerView.reloadBitmapAfterOnDraw(floats);
+//        stickerView.setOperationListener(new StickerView.OperationListener() {
+//            @Override
+//            public void onDeleteClick() {
+//                mViews.remove(stickerView);
+//                fl_main_content.removeView(stickerView);
+//            }
+//
+//            @Override
+//            public void onEdit(StickerView stickerView) {
+////                if (mCurrentEditTextView != null) {
+////                    mCurrentEditTextView.setInEdit(false);
+////                }
+//                mCurrentView.setInEdit(false);
+//                mCurrentView = stickerView;
+//                mCurrentView.setInEdit(true);
+//            }
+//
+//            @Override
+//            public void onTop(StickerView stickerView) {
+//                int position = mViews.indexOf(stickerView);
+//                if (position == mViews.size() - 1) {
+//                    return;
+//                }
+//                StickerView stickerTemp = (StickerView) mViews.remove(position);
+//                mViews.add(mViews.size(), stickerTemp);
+//            }
+//        });
+//        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+//        fl_main_content.addView(stickerView, lp);
+//        mViews.add(stickerView);
+//        setCurrentEdit(stickerView);
+//    }
+//
 //    private class SaveClickListener implements View.OnClickListener{
 //        @Override
 //        public void onClick(View v) {
+//            Canvas canvas = new Canvas(copyBitmap);
+//            saveStickerViews(canvas);
+//
 ////            movableTextView2.measure(
 ////                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
 ////                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -250,6 +406,37 @@
 //        }
 //    }
 //
+//    /**
+//     * @details 保存贴纸啦
+//     * @param canvas
+//     */
+//    private void saveStickerViews(Canvas canvas) {
+//        if (mStickerViewLists == null || mStickerViewLists.size() <= 0) {
+//            return;
+//        }
+//        // TODO
+//        float leaveH = 0f, leaveW = 0f, scale = 0f;
+//        ArrayList<MatrixInfo> matrixInfoArrayList = new ArrayList<>();
+//        MatrixInfo matrixInfo;
+//        for(StickerView sv:mStickerViewLists) {
+//            scale  = scaleAndLeaveSize[0];
+//            leaveW = scaleAndLeaveSize[1];   // 图片自动缩放时造成的留白区域
+//            leaveH = scaleAndLeaveSize[2];
+//            canvas.scale(scale, scale);
+//            canvas.translate(-leaveW, -leaveH);
+//            canvas.drawBitmap(sv.getBitmap(), sv.saveMatrix(), null);
+//            matrixInfo = new MatrixInfo();
+//            matrixInfo.floatArr = sv.saveMatrixFloatArray();
+//            matrixInfoArrayList.add(matrixInfo);
+//        }
+//        String imagePath = FileUtils.saveBitmapToLocal(copyBitmap, mContext);
+//        // add 插入保存图片 matrix
+//        // FileUtils.saveSerializableMatrix(matrixInfo);   // 保存单个贴纸的矩阵信息
+//        FileUtils.saveSerializableMatrixLists(matrixInfoArrayList);
+//        System.out.println("保存成功~~~~~~~" + imagePath);
+//        ToastUtil.makeText(mContext, "保存成功~~~~~~~" + imagePath);
+//    }
+//
 //
 //    private class MTVClickListener implements MovableTextView2.OnCustomClickListener {
 //        @Override
@@ -258,8 +445,6 @@
 //            if (writeClickCount) {
 //                ll_edit_panel.setVisibility(View.VISIBLE);
 //                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-//
-//
 //
 //            } else {
 //                ll_edit_panel.setVisibility(View.INVISIBLE);
@@ -308,6 +493,59 @@
 //        System.out.println("mMtvLists count:" + mMtvLists.size());
 //    }
 //
+//
+//
+//
+//
+//
+//    //添加表情
+//    private void addStickerView() {
+//        final StickerView stickerView = new StickerView(this);
+//        stickerView.setImageResource(R.mipmap.ic_cat);
+//        // maidou add
+//        // stickerView.setBitmapReloadMatrix(reloadMatrix);
+//        stickerView.setOperationListener(new StickerView.OperationListener() {
+//            @Override
+//            public void onDeleteClick() {
+//                mViews.remove(stickerView);
+//                fl_main_content.removeView(stickerView);
+//            }
+//
+//            @Override
+//            public void onEdit(StickerView stickerView) {
+//                mCurrentView.setInEdit(false);
+//                mCurrentView = stickerView;
+//                mCurrentView.setInEdit(true);
+//            }
+//
+//            @Override
+//            public void onTop(StickerView stickerView) {
+//                int position = mViews.indexOf(stickerView);
+//                if (position == mViews.size() - 1) {
+//                    return;
+//                }
+//                StickerView stickerTemp = (StickerView) mViews.remove(position);
+//                mViews.add(mViews.size(), stickerTemp);
+//            }
+//        });
+//        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+//        fl_main_content.addView(stickerView, lp);
+//        mViews.add(stickerView);
+//        setCurrentEdit(stickerView);
+//        mStickerViewLists.add(stickerView);
+//    }
+//
+//    /**
+//     * 设置当前处于编辑模式的贴纸
+//     */
+//    private void setCurrentEdit(StickerView stickerView) {
+//        if (mCurrentView != null) {
+//            mCurrentView.setInEdit(false);
+//        }
+//        mCurrentView = stickerView;
+//        stickerView.setInEdit(true);
+//    }
+//
 //    // --- listener 底部的 RadioGroup, 切换监听
 //    private class CurrentRadioGroupOnCheckChangeListener implements RadioGroup.OnCheckedChangeListener {
 //        @Override
@@ -328,8 +566,6 @@
 //            }
 //        }
 //    }
-//
-//
 //
 //
 //    // inner class start 滤镜的处理方法，暂时不用
@@ -379,7 +615,6 @@
 //            }
 //            @Override
 //            public void onClick(View v) {
-//                lastClickPosition = clickPosition;
 //                FilterTask filterTask = new FilterTask();
 //                filterTask.execute(clickPosition + "");
 //            }
@@ -411,7 +646,7 @@
 //        private ProgressDialog loadDialog;
 //        public FilterTask() {
 //            super();
-//            loadDialog = new ProgressDialog(MainUIActivity.this, R.style.MyDialog);
+//            loadDialog = new ProgressDialog(MainUIActivityBak0318.this, R.style.MyDialog);
 //            loadDialog.setCancelable(false);
 //        }
 //        @Override
@@ -423,7 +658,7 @@
 //        protected Bitmap doInBackground(String... params) {
 //            int position = Integer.parseInt(params[0]);
 //            return PhotoProcessing.filterPhoto(
-//                    BitmapUtils.loadImage(MainUIActivity.this, mCurrImgId, fl_main_content),
+//                    BitmapUtils.loadImage(MainUIActivityBak0318.this, mCurrImgId, fl_main_content),
 //                    position
 //            );
 //        }

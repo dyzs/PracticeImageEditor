@@ -17,26 +17,26 @@
         android:paddingTop="2dp" >
 
         <RadioButton
-            android:textColor="@android:color/white"
             android:id="@+id/rb_word"
-            style="@style/main_tab_bottom"
-            android:drawableTop="@drawable/btn_tab_word_selector"
-            android:text="@string/tab_word" />
+            style="@style/image_editor_tab_bottom"
+            android:textSize="0sp"
+            android:drawableTop="@drawable/btn_image_editor_tab_word_selector"
+            android:layout_height="wrap_content" />
 
         <RadioButton
-            android:visibility="gone"
-            android:textColor="@android:color/black"
             android:id="@+id/rb_sticker"
-            style="@style/main_tab_bottom"
-            android:drawableTop="@drawable/btn_tab_sticker_selector"
-            android:text="@string/tab_sticker" />
+            style="@style/image_editor_tab_bottom"
+            android:textSize="0sp"
+            android:drawableTop="@drawable/btn_image_editor_tab_sticker_selector"
+            android:layout_height="wrap_content"
+            />
 
         <RadioButton
             android:visibility="gone"
             android:textColor="@android:color/black"
             android:id="@+id/rb_filter"
-            style="@style/main_tab_bottom"
+            style="@style/image_editor_tab_bottom"
             android:drawableTop="@drawable/btn_tab_filter_selector"
-            android:text="@string/tab_filter" />
+            android:text="@string/image_editor_tab_filter" />
     </RadioGroup>
 </LinearLayout>

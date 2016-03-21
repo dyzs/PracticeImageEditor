@@ -12,7 +12,6 @@ public class SoftKeyBoardListener {
     private View rootView;          //activity的根视图
     int rootViewVisibleHeight;      //纪录根视图的显示高度
     private OnSoftKeyBoardChangeListener onSoftKeyBoardChangeListener;
-
     public SoftKeyBoardListener(Activity activity) {
         //获取activity的根视图
         rootView = activity.getWindow().getDecorView();

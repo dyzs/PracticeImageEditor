@@ -2,6 +2,7 @@ package com.dyzs.conciseimageeditor.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -12,11 +13,13 @@ import android.widget.LinearLayout;
 
 import com.dyzs.conciseimageeditor.R;
 import com.dyzs.conciseimageeditor.utils.BitmapUtils;
+import com.dyzs.conciseimageeditor.utils.DensityUtils;
 
 /**
  * Created by maidou on 2016/2/19.
  */
 public class MovableTextView2 extends EditText{
+    private Context mContext;
     public MovableTextView2(Context context) {
         this(context, null);
     }
@@ -25,25 +28,34 @@ public class MovableTextView2 extends EditText{
     }
     public MovableTextView2(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mContext = context;
         init();
     }
     private void init() {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT
         );
-        // this.setHint("请输入文字~");
-        this.setBackgroundResource(R.drawable.dotted_shape);
-        this.setHintTextColor(Color.MAGENTA);
-        this.setTextColor(Color.RED);
+        this.setLayoutParams(layoutParams);
+        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.pic_bg_edit_text_9patch_3x3));
+        this.setHint("在此输入标注文字");
+        this.setHintTextColor(Color.WHITE);
+        this.setBackgroundResource(R.drawable.shape_dotted);
+        this.setTextColor(Color.WHITE);
         this.setClickable(true);
         this.setFocusable(true);
-        this.setTextSize(getResources().getDimension(R.dimen.movable_text_view_default_text_size));
-        this.setLayoutParams(layoutParams);
+        this.setTextSize(DensityUtils.px2sp(mContext, getResources().getDimension(R.dimen.movable_text_view_default_text_size)));
+        this.setTypefaceName("default");
+        this.setTypeface(Typeface.DEFAULT);
+        this.setColorR(255);
+        this.setColorG(255);
+        this.setColorB(255);
+        this.setMaxEms(12);
     }
 
     public enum OperateState{
         STATE_MOVING, STATE_SELECTED, STATE_UNSELECTED
     }
+
     private static final int ACTION_STATE_DOWN = 1;
     private static final int ACTION_STATE_MOVE = 2;
     private static final int ACTION_STATE_UP = 3;
@@ -51,7 +63,7 @@ public class MovableTextView2 extends EditText{
     public void setBackgroundRes() {
         // 判断如果是在选中状态或者是滑动状态，则添加背景
         if(operateState == OperateState.STATE_MOVING || operateState == OperateState.STATE_SELECTED) {
-            this.setBackgroundResource(R.drawable.dotted_shape);
+            this.setBackgroundResource(R.drawable.shape_dotted);
         } else if (operateState == OperateState.STATE_UNSELECTED) {
             this.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         }
@@ -125,8 +137,6 @@ public class MovableTextView2 extends EditText{
         lp.rightMargin = BitmapUtils.getScreenPixels(getContext()).widthPixels - getLeft() - this.getMeasuredWidth();
         lp.bottomMargin = 0;
         setLayoutParams(lp);
-//        lp.rightMargin = fl_main_content.getWidth() - left - movableTextView2.getMeasuredWidth();
-//        lp.bottomMargin = 0;
     }
     /**
      * 用来代替点击事件
@@ -153,12 +163,58 @@ public class MovableTextView2 extends EditText{
     }
 
 
+    // 标记当前控件是否有文本内容
+    private boolean hasContent;
+    public boolean isHasContent() {
+        return hasContent;
+    }
+    public void setHasContent(boolean hasContent) {
+        this.hasContent = hasContent;
+    }
+
+    private String typefaceName;
+    public String getTypefaceName() {
+        return typefaceName;
+    }
+    public void setTypefaceName(String typeface) {
+        this.typefaceName = typeface;
+    }
+
+    private int ColorR;
+    private int ColorG;
+    private int ColorB;
+
+    public int getColorR() {
+        return ColorR;
+    }
+
+    public void setColorR(int colorR) {
+        ColorR = colorR;
+    }
+
+    public int getColorG() {
+        return ColorG;
+    }
+
+    public void setColorG(int colorG) {
+        ColorG = colorG;
+    }
+
+    public int getColorB() {
+        return ColorB;
+    }
+
+    public void setColorB(int colorB) {
+        ColorB = colorB;
+    }
+
+    // 保存当前的 mtv 对象用于只是在第一次点击的时候才自动弹出虚拟键盘
+    private boolean firstClick;   // 当前 mtv 是否已经被第一次点击了，用来判断当前view的第一次点击是否被消费了
+    public boolean getFirstClick() { return firstClick; }
+    public void setFirstClick(boolean firstClick) { this.firstClick = firstClick; }
 
 
-
-
-
-//    //标题的双击事件
+    //    //标题的双击事件
 //    public void tv_btnnnnnnnnnnn(View v){
 //        /**
 //         * src the source array to copy the content. 拷贝的原数组 srcPos the
@@ -183,29 +239,6 @@ public class MovableTextView2 extends EditText{
 //            }
 //        }
 //    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

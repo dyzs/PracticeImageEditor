@@ -20,89 +20,148 @@
 
     <!-- wait to del-->
 
-    <color name="vpi__background_holo_dark">#ff000000</color>
-    <color name="vpi__background_holo_light">#fff3f3f3</color>
-    <item type="color" name="vpi__bright_foreground_holo_dark">@color/vpi__background_holo_light</item>
-    <item type="color" name="vpi__bright_foreground_holo_light">@color/vpi__background_holo_dark</item>
-    <color name="vpi__bright_foreground_disabled_holo_dark">#ff4c4c4c</color>
-    <color name="vpi__bright_foreground_disabled_holo_light">#ffb2b2b2</color>
-    <item type="color" name="vpi__bright_foreground_inverse_holo_dark">@color/vpi__bright_foreground_holo_light</item>
-    <item type="color" name="vpi__bright_foreground_inverse_holo_light">@color/vpi__bright_foreground_holo_dark</item>
-    <color name="default_circle_indicator_fill_color">#ffffffff</color>
-    <color name="default_circle_indicator_page_color">#00000000</color>
-    <color name="default_circle_indicator_stroke_color">#ffdddddd</color>
-    <color name="default_line_indicator_selected_color">#ff33b5e5</color>
-    <color name="default_line_indicator_unselected_color">#ffbbbbbb</color>
-    <color name="default_title_indicator_footer_color">#ff33b5e5</color>
-    <color name="default_title_indicator_selected_color">#ffffffff</color>
-    <color name="default_title_indicator_text_color">#bbffffff</color>
-    <color name="default_underline_indicator_selected_color">#ff33b5e5</color>
-    <color name="settingActivityBg">#fff7f7f7</color>
-    <color name="TextColorBlack">#ff000000</color>
-    <color name="TextColorWhite">#ffffffff</color>
-    <color name="TextColorGray">#ff505050</color>
-    <color name="ToastBgColor">#ff424242</color>
-    <color name="btnColor">#ffffffff</color>
-    <color name="textColorforItemTitle">#ff666666</color>
-    <color name="secondbtntextColor">#ff496ea3</color>
-    <color name="textColorforCheckBox">#ff333333</color>
-    <color name="bgColor">#fff2f2f2</color>
-    <color name="downLoadTextNomal">#ff3366cc</color>
-    <color name="downLoadTextPressed">#ffffffff</color>
-    <color name="downLoadBackNomal">#ffffffff</color>
-    <color name="downLoadBackFocus">#ff6698e7</color>
-    <color name="downLoadBackPressed">#ff3366cc</color>
-    <color name="dialog_tiltle_blue">#ff2277bb</color>
-    <color name="gray_a1">#ffa1a1a1</color>
-    <color name="red_96">#ff960000</color>
-    <color name="black_c0">#c0000000</color>
-    <color name="transparent_1a">#1a000000</color>
-    <color name="transparent_2e">#2e000000</color>
+    <!--<color name="vpi__background_holo_dark">#ff000000</color>-->
+    <!--<color name="vpi__background_holo_light">#fff3f3f3</color>-->
+    <!--<item type="color" name="vpi__bright_foreground_holo_dark">@color/vpi__background_holo_light</item>-->
+    <!--<item type="color" name="vpi__bright_foreground_holo_light">@color/vpi__background_holo_dark</item>-->
+    <!--<color name="vpi__bright_foreground_disabled_holo_dark">#ff4c4c4c</color>-->
+    <!--<color name="vpi__bright_foreground_disabled_holo_light">#ffb2b2b2</color>-->
+    <!--<item type="color" name="vpi__bright_foreground_inverse_holo_dark">@color/vpi__bright_foreground_holo_light</item>-->
+    <!--<item type="color" name="vpi__bright_foreground_inverse_holo_light">@color/vpi__bright_foreground_holo_dark</item>-->
+    <!--<color name="default_circle_indicator_fill_color">#ffffffff</color>-->
+    <!--<color name="default_circle_indicator_page_color">#00000000</color>-->
+    <!--<color name="default_circle_indicator_stroke_color">#ffdddddd</color>-->
+    <!--<color name="default_line_indicator_selected_color">#ff33b5e5</color>-->
+    <!--<color name="default_line_indicator_unselected_color">#ffbbbbbb</color>-->
+    <!--<color name="default_title_indicator_footer_color">#ff33b5e5</color>-->
+    <!--<color name="default_title_indicator_selected_color">#ffffffff</color>-->
+    <!--<color name="default_title_indicator_text_color">#bbffffff</color>-->
+    <!--<color name="default_underline_indicator_selected_color">#ff33b5e5</color>-->
+    <!--<color name="settingActivityBg">#fff7f7f7</color>-->
+    <!--<color name="TextColorBlack">#ff000000</color>-->
+    <!--<color name="TextColorWhite">#ffffffff</color>-->
+    <!--<color name="TextColorGray">#ff505050</color>-->
+    <!--<color name="ToastBgColor">#ff424242</color>-->
+    <!--<color name="btnColor">#ffffffff</color>-->
+    <!--<color name="textColorforItemTitle">#ff666666</color>-->
+    <!--<color name="secondbtntextColor">#ff496ea3</color>-->
+    <!--<color name="textColorforCheckBox">#ff333333</color>-->
+    <!--<color name="bgColor">#fff2f2f2</color>-->
+    <!--<color name="downLoadTextNomal">#ff3366cc</color>-->
+    <!--<color name="downLoadTextPressed">#ffffffff</color>-->
+    <!--<color name="downLoadBackNomal">#ffffffff</color>-->
+    <!--<color name="downLoadBackFocus">#ff6698e7</color>-->
+    <!--<color name="downLoadBackPressed">#ff3366cc</color>-->
+    <!--<color name="dialog_tiltle_blue">#ff2277bb</color>-->
+    <!--<color name="gray_a1">#ffa1a1a1</color>-->
+    <!--<color name="red_96">#ff960000</color>-->
+    <!--<color name="black_c0">#c0000000</color>-->
+    <!--<color name="transparent_1a">#1a000000</color>-->
+    <!--<color name="transparent_2e">#2e000000</color>-->
+    <!--<color name="transparent">#00000000</color>-->
+    <!--<color name="transparent_background">#a0000000</color>-->
+    <!--<color name="lightyellow">#ffffffe0</color>-->
+    <!--<color name="yellow">#ffffa200</color>-->
+    <!--<color name="tabback">#ff000000</color>-->
+    <!--<color name="white_pressed">#88ffffff</color>-->
+    <!--<color name="gray_1a">#ff1a1a1a</color>-->
+    <!--<color name="gray_19">#ff191919</color>-->
+    <!--<color name="gray_fa">#fffafafa</color>-->
+    <!--<color name="gray_7f">#ff7f7f7f</color>-->
+    <!--<color name="gray_d0">#ffd0d0d0</color>-->
+    <!--<color name="gray_d9">#ffd9d9d9</color>-->
+    <!--<color name="gray_66">#ff666666</color>-->
+    <!--<color name="gray_fc">#fffcfcfc</color>-->
+    <!--<color name="gray_f2">#fff2f2f2</color>-->
+    <!--<color name="gray_f7">#fff7f7f7</color>-->
+    <!--<color name="gray_64">#ff646464</color>-->
+    <!--<color name="gray_12">#ff646464</color>-->
+    <!--<color name="gray_95">#ff959595</color>-->
+    <!--<color name="gray_91">#ff919191</color>-->
+    <!--<color name="gray_98">#ff989898</color>-->
+    <!--<color name="gray_e5">#ffe5e5e5</color>-->
+    <!--<color name="gray_33">#ff333333</color>-->
+    <!--<color name="gray_4c">#ff4c4c4c</color>-->
+    <!--<color name="gray_71">#ff717171</color>-->
+    <!--<color name="blue_61">#ff61cada</color>-->
+    <!--<color name="blue_38">#ff389cf2</color>-->
+    <!--<color name="ssid_color">#ff389cf2</color>-->
+    <!--<color name="gold">#ffb89766</color>-->
+    <!--<color name="green_46">#ff46c31e</color>-->
+    <!--<color name="menu_bg_normal">#ee273242</color>-->
+    <!--<color name="menu_bg_pressed">#ee171c23</color>-->
+    <!--<color name="menu_text_focus">#ff3493e0</color>-->
+    <!--<color name="menu_item_split">#ff555e6b</color>-->
+    <!--<color name="photolist_item_sel">#ffff5464</color>-->
+    <!--<color name="activity_title_bkg">#ff333333</color>-->
+    <!--<color name="activity_content_bkg">#ff333333</color>-->
+    <!--<color name="tabbtn_textcolor_nomal">#ffffffff</color>-->
+    <!--<color name="tabbtn_textcolor_sel">#ffff5464</color>-->
+    <!--<color name="pink_fe">#fffe5663</color>-->
+    <!--<color name="layer_selected">#ffff3237</color>-->
+    <!--<color name="gray_5b">#ff5b5b5b</color>-->
+    <!--<color name="gray_47">#ff474747</color>-->
+    <!--<color name="umeng_fb_color_btn_pressed">#ff1495f7</color>-->
+    <!--<color name="umeng_fb_color_btn_normal">#ff333333</color>-->
+
+
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+
     <color name="transparent">#00000000</color>
-    <color name="transparent_background">#a0000000</color>
-    <color name="lightyellow">#ffffffe0</color>
-    <color name="yellow">#ffffa200</color>
-    <color name="tabback">#ff000000</color>
-    <color name="white_pressed">#88ffffff</color>
-    <color name="gray_1a">#ff1a1a1a</color>
-    <color name="gray_19">#ff191919</color>
-    <color name="gray_fa">#fffafafa</color>
-    <color name="gray_7f">#ff7f7f7f</color>
-    <color name="gray_d0">#ffd0d0d0</color>
-    <color name="gray_d9">#ffd9d9d9</color>
-    <color name="gray_66">#ff666666</color>
-    <color name="gray_fc">#fffcfcfc</color>
-    <color name="gray_f2">#fff2f2f2</color>
-    <color name="gray_f7">#fff7f7f7</color>
-    <color name="gray_64">#ff646464</color>
-    <color name="gray_12">#ff646464</color>
-    <color name="gray_95">#ff959595</color>
-    <color name="gray_91">#ff919191</color>
-    <color name="gray_98">#ff989898</color>
-    <color name="gray_e5">#ffe5e5e5</color>
-    <color name="gray_33">#ff333333</color>
-    <color name="gray_4c">#ff4c4c4c</color>
-    <color name="gray_71">#ff717171</color>
-    <color name="blue_61">#ff61cada</color>
-    <color name="blue_38">#ff389cf2</color>
-    <color name="ssid_color">#ff389cf2</color>
-    <color name="gold">#ffb89766</color>
-    <color name="green_46">#ff46c31e</color>
-    <color name="menu_bg_normal">#ee273242</color>
-    <color name="menu_bg_pressed">#ee171c23</color>
-    <color name="menu_text_focus">#ff3493e0</color>
-    <color name="menu_item_split">#ff555e6b</color>
-    <color name="photolist_item_sel">#ffff5464</color>
-    <color name="activity_title_bkg">#ff333333</color>
-    <color name="activity_content_bkg">#ff333333</color>
-    <color name="tabbtn_textcolor_nomal">#ffffffff</color>
-    <color name="tabbtn_textcolor_sel">#ffff5464</color>
-    <color name="pink_fe">#fffe5663</color>
-    <color name="layer_selected">#ffff3237</color>
-    <color name="gray_5b">#ff5b5b5b</color>
-    <color name="gray_47">#ff474747</color>
-    <color name="umeng_fb_color_btn_pressed">#ff1495f7</color>
-    <color name="umeng_fb_color_btn_normal">#ff333333</color>
+
+    <!--<color name="black_1f1f22">#1f1f22</color>-->
+    <!--<color name="black_010101">#010101</color>-->
+    <color name="blue_021363">#021363</color>
+    <!--<color name="blue_010f3f">#010f3f</color>-->
+    <color name="blue_666e8a">#666e8a</color>
+    <!--<color name="blue_5c6999">#5c6999</color>-->
+    <color name="blue_9ea1ad">#9ea1ad</color>
+    <color name="red_e73a3d">#e73a3d</color>
+    <color name="red_b00606">#b00606</color>
+    <color name="grey_f1f1f1">#f1f1f1</color>
+    <color name="grey_c9c9c9">#c9c9c9</color>
+    <color name="grey_9e9e9e">#9e9e9e</color>
+    <color name="blue_8196cc">#8196cc</color>
+    <color name="grey_fdfdfd">#fdfdfd</color>
+    <color name="grey_fdfdfd_alpha_80">#ccfdfdfd</color>
+    <color name="grey_cccccc">#cccccc</color>
+    <color name="grey_d2d1d5">#d2d1d5</color>
+    <color name="grey_cccccc_alpha_95">#f3cccccc</color>
+    <color name="grey_bbbbbb">#bbbbbb</color>
+    <color name="grey_8b8b8b">#8b8b8b</color>
+    <color name="grey_b6b6b6">#b6b6b6</color>
+    <color name="grey_ecebf1">#ecebf1</color>
+    <color name="grey_dedde1">#dedde1</color>
+    <color name="grey_e4e4e4">#e4e4e4</color>
+    <color name="black_555555">#555555</color>
+    <color name="black_666666">#666666</color>
+    <!--<color name="black_313131">#313131</color>-->
+    <color name="black_b2000000">#b2000000</color>
+    <color name="white_alpha_95">#f3ffffff</color>
+    <color name="white_alpha_50">#80ffffff</color>
+    <color name="black_alpha_95">#f3000000</color>
+    <color name="black_alpha_80">#cc000000</color>
+    <color name="red_alpha_95">#f3e73a3d</color>
+    <!--<color name="primary">#3f51b5</color>-->
+    <!--<color name="primary_dark">#303f9f</color>-->
+    <color name="ripple">#F06292</color>
+    <color name="blue_36363a">#36363a</color>
+
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="pink">#e91e63</color>
+    <color name="pink_pressed">#ec407a</color>
+    <color name="blue_semi_transparent">#805677fc</color>
+    <color name="blue_semi_transparent_pressed">#80738ffe</color>
+
+
+
 
 
 </resources>

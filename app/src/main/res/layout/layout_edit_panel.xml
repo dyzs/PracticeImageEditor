@@ -2,8 +2,141 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:background="@android:color/transparent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <include layout="@layout/layout_edit_panel_head" />
-    <include layout="@layout/layout_edit_panel_content"/>
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/ll_edit_panel_head"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:orientation="horizontal"
+        android:layout_gravity="bottom"
+        android:background="@android:color/holo_red_light"
+        android:visibility="visible"
+        >
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/iv_mode"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@mipmap/btn_image_editor_tab_word_pressed"
+            />
+        <!--android:imeOptions="flagNoExtractUi" 表示不挤压界面-->
+        <EditText
+            android:id="@+id/et_input_text"
+            android:imeOptions="flagNoExtractUi"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:layout_gravity="top"
+            android:background="@android:color/darker_gray"
+            />
+        <Button
+            android:id="@+id/iv_text_done"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:text="完成"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:background="@drawable/btn_beautiful_text_button_background_selector"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_edit_panel_content"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:color/holo_green_dark"
+        android:layout_gravity="bottom"
+        android:visibility="visible"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="30.0dip"
+            android:layout_weight="1.0"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tv_textSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10.0dip"
+                android:textSize="15sp"
+                android:text="字号："
+                android:textColor="@color/white" />
+            <SeekBar
+                android:id="@+id/sb_fontSize"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1.0"
+                android:maxHeight="10.0dip"
+                android:paddingLeft="10.0dip"
+                android:paddingRight="10.0dip"
+                android:max="100"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="30.0dip"
+            android:layout_weight="1.0"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10.0dip"
+                android:textSize="15sp"
+                android:text="颜色："
+                android:textColor="@color/white" />
+            <!--app:colors="@array/material_colors"-->
+            <com.dyzs.conciseimageeditor.view.ColorSeekBar
+                android:id="@+id/csb_FontColor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:maxHeight="10.0dip"
+                android:minHeight="10.0dip"
+                />
+            <ImageView
+                android:id="@+id/iv_colorShow"
+                android:layout_width="20.0dip"
+                android:layout_height="20.0dip"
+                android:layout_marginRight="10.0dip"
+                android:src="@drawable/textstyle_color_border" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="40.0dip"
+            android:layout_weight="1.0"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10.0dip"
+                android:text="字体选择："
+                android:textSize="15sp"
+                android:textColor="@color/white" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_typeface_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:gravity="center"
+                android:layout_gravity="bottom"
+                android:background="@android:color/transparent"
+                android:visibility="visible"
+                />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

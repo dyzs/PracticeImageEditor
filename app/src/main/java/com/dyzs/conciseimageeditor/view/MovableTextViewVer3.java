@@ -6,12 +6,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.dyzs.conciseimageeditor.R;
 import com.dyzs.conciseimageeditor.utils.ScreenUtils;
@@ -20,7 +15,7 @@ import com.dyzs.conciseimageeditor.utils.ScreenUtils;
  * Created by wjk on 2015/8/10.
  * 可在屏幕来回拖动的TextView
  */
-public class MovableTextView extends EditText {
+public class MovableTextViewVer3 extends EditText {
 
     private Context context;
     private OnMovingListener mOnMovinglistener;
@@ -33,19 +28,19 @@ public class MovableTextView extends EditText {
         this.mOnMovinglistener = mOnMovinglistener;
     }
 
-    public MovableTextView(Context context) {
+    public MovableTextViewVer3(Context context) {
         super(context, null);
         this.context = context;
         init();
     }
 
-    public MovableTextView(Context context, AttributeSet attrs) {
+    public MovableTextViewVer3(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
         this.context = context;
         init();
     }
 
-    public MovableTextView(Context context, AttributeSet attrs, int defStyle) {
+    public MovableTextViewVer3(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         this.context = context;
         init();
@@ -54,8 +49,9 @@ public class MovableTextView extends EditText {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        this.setBackgroundResource(R.drawable.dotted_shape);
 //        this.setHintTextColor(Color.MAGENTA);
+        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.pic_bg_edit_text_9patch_3x3));
+        this.setBackgroundResource(R.drawable.shape_dotted);
         this.setText("请输入文字~");
         this.setTextColor(Color.RED);
         this.setClickable(true);
@@ -139,8 +135,6 @@ public class MovableTextView extends EditText {
         return super.onTouchEvent(event);
     }
 
-
-
     private int parentWidth;
     private int parentHeight;
 
@@ -169,18 +163,10 @@ public class MovableTextView extends EditText {
         void onMoveComplete(double x, double y);
     }
 
-    private ScrollView parentScrollView;
-    private RelativeLayout parentRelativeLayout;
-    private FrameLayout parentFrameLayout;
+    private ViewGroup parentLayout;
 
-    public void setParentScrollView(ScrollView parentScrollView) {
-        this.parentScrollView = parentScrollView;
-    }
-    public void setParentRelativeLayout(RelativeLayout parentRelativeLayout) {
-        this.parentRelativeLayout = parentRelativeLayout;
-    }
-    public void setParentFrameLayout(FrameLayout parentFrameLayout) {
-        this.parentFrameLayout = parentFrameLayout;
+    public void setParentLayout(ViewGroup parent) {
+        this.parentLayout = parent;
     }
 
     /**
@@ -188,9 +174,7 @@ public class MovableTextView extends EditText {
      * @param flag boolean
      */
     private void setParentScrollAble(boolean flag) {
-        // parentScrollView.requestDisallowInterceptTouchEvent(!flag);
-        // parentRelativeLayout.requestDisallowInterceptTouchEvent(!flag);
-        parentFrameLayout.requestDisallowInterceptTouchEvent(!flag);
+        parentLayout.requestDisallowInterceptTouchEvent(!flag);
     }
 
     //按下正在移动中还没抬起
