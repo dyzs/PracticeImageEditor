@@ -2,7 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/fl_all_boss"
+    android:id="@+id/fl_image_editor_base_layout"
     >
     <LinearLayout
         android:id="@+id/ll_ui_main"
@@ -49,6 +49,16 @@
         </FrameLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_filter_list"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:scrollbars="none"
+            android:gravity="center"
+            android:layout_gravity="bottom"
+            android:background="@android:color/transparent"
+            android:visibility="gone"
+            />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_sticker_list"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:scrollbars="none"

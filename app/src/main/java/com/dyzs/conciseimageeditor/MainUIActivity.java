@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -83,11 +84,17 @@ public class MainUIActivity extends Activity {
 
     private ArrayList<StickerView> mStickerViewLists;
     private float[] scaleAndLeaveSize;
-    private FrameLayout fl_all_boss;
+    private FrameLayout fl_image_editor_base_layout;
 
     private EditText et;
 
+    // edit panel params
     private LinearLayout edit_panel;            // 文字编辑面板，使用 LayoutInflate
+//    private ImageView
+
+    // edit panel params
+
+
     private boolean openKeyboardOnLoading;
     private boolean createMtvOnLoading;
     private KeyboardState mCurKeyboardState;
@@ -110,7 +117,7 @@ public class MainUIActivity extends Activity {
         createMtvOnLoading = true;
 
 
-        fl_all_boss = (FrameLayout) findViewById(R.id.fl_all_boss);
+        fl_image_editor_base_layout = (FrameLayout) findViewById(R.id.fl_image_editor_base_layout);
         et = new EditText(mContext);
         initView();
         // 加载图片
@@ -181,7 +188,7 @@ public class MainUIActivity extends Activity {
                         System.out.println("-->" + keyboardHeight);
                         SystemClock.sleep(300);
                         edit_panel = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.layout_edit_panel, null);
-                        fl_all_boss.addView(edit_panel);
+                        fl_image_editor_base_layout.addView(edit_panel);
                         // 获取编辑 panel 的头高度
                         LinearLayout ll_edit_panel_head = (LinearLayout) edit_panel.findViewById(R.id.ll_edit_panel_head);
                         ll_edit_panel_head.measure(0, 0);
@@ -260,27 +267,22 @@ public class MainUIActivity extends Activity {
         }
     }
 
-
     private class MTVClickListener implements MovableTextView2.OnCustomClickListener {
-        MovableTextView2 mtv;
+        MovableTextView2 mMtv;
         public MTVClickListener(MovableTextView2 mtv2) {
-            this.mtv = mtv2;
+            this.mMtv = mtv2;
         }
         @Override
         public void onCustomClick() {
-
-            // TODO 遍历 mtv 集合，设置选中状态
-
-
             // 键盘状态是打开，同时还未执行任何点击，点击后关闭键盘，状态调整为关闭
-            if (mCurKeyboardState == KeyboardState.STATE_OPEN && mtv.getFirstClick()) {
-                mtv.setFirstClick(false);                       // 关闭当前控件的第一次点击
+            if (mCurKeyboardState == KeyboardState.STATE_OPEN && mMtv.getFirstClick()) {
+                mMtv.setFirstClick(false);                       // 关闭当前控件的第一次点击
                 edit_panel.setVisibility(View.INVISIBLE);       // 隐藏编辑面板
                 CommonUtils.hitKeyboardOpenOrNot(mContext);     // 自动关闭键盘
             }
 
             // 键盘打开状态，同时第一次点击已经被消费，点击后关闭键盘，状态调整为关闭
-            else if (mCurKeyboardState == KeyboardState.STATE_OPEN && !mtv.getFirstClick()) {
+            else if (mCurKeyboardState == KeyboardState.STATE_OPEN && !mMtv.getFirstClick()) {
                 if (edit_panel.getVisibility() == View.VISIBLE) {
                     edit_panel.setVisibility(View.INVISIBLE);
                     CommonUtils.hitKeyboardOpenOrNot(mContext);     // 自动关闭键盘
@@ -290,7 +292,7 @@ public class MainUIActivity extends Activity {
             }
 
             // 键盘关闭状态，同时当前控件的第一次点击已经被消费，点击后打开键盘，状态恢复打开
-            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && mtv.getFirstClick()) {
+            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && mMtv.getFirstClick()) {
                 if (edit_panel.getVisibility() == View.VISIBLE) {
                     edit_panel.setVisibility(View.INVISIBLE);
                 } else {
@@ -299,15 +301,43 @@ public class MainUIActivity extends Activity {
             }
 
             // 键盘关闭状态，同时当前控件的第一次点击已经被消费，点击后打开键盘，状态恢复打开
-            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && !mtv.getFirstClick()) {
+            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && !mMtv.getFirstClick()) {
                 if (edit_panel.getVisibility() == View.VISIBLE) {
                     edit_panel.setVisibility(View.INVISIBLE);
                 } else {
                     edit_panel.setVisibility(View.VISIBLE);
                 }
             }
+
+
+
+
+
+            // 把 MovableTextView2 的数据载入到编辑面板中
+            loadMtvDataIntoEditPanel(mMtv);
         }
     }
+
+    private void loadMtvDataIntoEditPanel(MovableTextView2 movableTextView2) {
+        if (edit_panel.getVisibility() == View.INVISIBLE) {return;}
+        // TODO 遍历 mtv 集合，设置选中状态
+        for (MovableTextView2 m : mMtvLists) {
+            System.out.println("mMtvLists item selected：" + m.isSelected());
+            m.setSelected(false);
+            if (m.equals(movableTextView2)) {
+                m.setSelected(true);
+            }
+        }
+        System.out.println("movableTextView2：" + movableTextView2.isSelected());
+
+//        movableTextView2
+
+    }
+
+
+
+
+
 
     // ====================task line
     private LoadImageTask mLoadImageTask;

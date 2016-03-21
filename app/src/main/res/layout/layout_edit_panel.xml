@@ -14,30 +14,29 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:orientation="horizontal"
-        android:layout_gravity="bottom"
+        android:gravity="center"
         android:background="@android:color/holo_red_light"
         android:visibility="visible"
         >
         <ImageView
-            android:visibility="gone"
-            android:id="@+id/iv_mode"
+            android:id="@+id/iv_edit_panel_key_board_options"
+            android:visibility="visible"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@mipmap/btn_image_editor_tab_word_pressed"
             />
         <!--android:imeOptions="flagNoExtractUi" 表示不挤压界面-->
         <EditText
-            android:id="@+id/et_input_text"
+            android:id="@+id/et_edit_panel_text"
             android:imeOptions="flagNoExtractUi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@android:color/white"
-            android:layout_gravity="top"
             android:background="@android:color/darker_gray"
             />
         <Button
-            android:id="@+id/iv_text_done"
+            android:id="@+id/iv_edit_panel_save"
             android:layout_width="50dp"
             android:layout_height="30dp"
             android:layout_marginLeft="10dp"
@@ -54,7 +53,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@android:color/holo_green_dark"
+        android:background="@android:color/holo_red_light"
         android:layout_gravity="bottom"
         android:visibility="visible"
         android:orientation="vertical">
@@ -64,7 +63,7 @@
             android:layout_weight="1.0"
             android:gravity="center_vertical">
             <TextView
-                android:id="@+id/tv_textSize"
+                android:id="@+id/tv_edit_panel_text_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10.0dip"
@@ -72,7 +71,7 @@
                 android:text="字号："
                 android:textColor="@color/white" />
             <SeekBar
-                android:id="@+id/sb_fontSize"
+                android:id="@+id/sb_edit_panel_font_size"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -90,7 +89,6 @@
             android:layout_weight="1.0"
             android:gravity="center_vertical">
             <TextView
-                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10.0dip"
@@ -99,7 +97,7 @@
                 android:textColor="@color/white" />
             <!--app:colors="@array/material_colors"-->
             <com.dyzs.conciseimageeditor.view.ColorSeekBar
-                android:id="@+id/csb_FontColor"
+                android:id="@+id/csb_edit_panel_font_color"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
@@ -107,26 +105,27 @@
                 android:minHeight="10.0dip"
                 />
             <ImageView
-                android:id="@+id/iv_colorShow"
+                android:id="@+id/iv_color_show"
                 android:layout_width="20.0dip"
                 android:layout_height="20.0dip"
                 android:layout_marginRight="10.0dip"
-                android:src="@drawable/textstyle_color_border" />
+                android:src="@drawable/style_color_border" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="40.0dip"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
             android:gravity="center_vertical">
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/tv_textChoose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10.0dip"
                 android:text="字体选择："
                 android:textSize="15sp"
-                android:textColor="@color/white" />
+                android:textColor="@android:color/white" />
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_typeface_list"
                 android:layout_width="match_parent"
@@ -135,7 +134,7 @@
                 android:gravity="center"
                 android:layout_gravity="bottom"
                 android:background="@android:color/transparent"
-                android:visibility="visible"
+                android:visibility="gone"
                 />
         </LinearLayout>
     </LinearLayout>
