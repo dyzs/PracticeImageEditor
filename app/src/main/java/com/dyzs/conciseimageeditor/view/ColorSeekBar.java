@@ -165,6 +165,16 @@ public class ColorSeekBar extends View {
 		//init rect
 		mColorRect = new Rect(realLeft ,realTop,realRight,realTop + mBarHeight);
 
+		// 创建LinearGradient并设置渐变颜色数组
+		// 第一个,第二个参数表示渐变起点 可以设置起点终点在对角等任意位置
+		// 第三个,第四个参数表示渐变终点
+		// 第五个参数表示渐变颜色
+		// 第六个参数可以为空,表示坐标,值为0-1 new float[] {0.25f, 0.5f, 0.75f, 1 }
+		// 如果这是 null 空的，颜色均匀分布，沿梯度线。
+		// 第七个表示平铺方式
+		// CLAMP重复最后一个颜色至最后
+		// MIRROR重复着色的图像水平或垂直方向已镜像方式填充会有翻转效果
+		// REPEAT重复着色的图像水平或垂直方向
 		//init paint
 		mColorGradient = new LinearGradient(0, 0, mColorRect.width(), 0, mColors, null, Shader.TileMode.MIRROR);
 		mColorRectPaint = new Paint();

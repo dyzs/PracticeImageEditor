@@ -36,7 +36,7 @@
             android:background="@android:color/darker_gray"
             />
         <Button
-            android:id="@+id/iv_edit_panel_save"
+            android:id="@+id/iv_edit_panel_complete"
             android:layout_width="50dp"
             android:layout_height="30dp"
             android:layout_marginLeft="10dp"
@@ -87,6 +87,7 @@
             android:layout_width="fill_parent"
             android:layout_height="30.0dip"
             android:layout_weight="1.0"
+            android:orientation="horizontal"
             android:gravity="center_vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -95,20 +96,41 @@
                 android:textSize="15sp"
                 android:text="颜色："
                 android:textColor="@color/white" />
+
+            <!--<ListView-->
+                <!--android:id="@+id/lv_edit_panel_font_color"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--/>-->
+
+            <!--字体颜色-->
             <!--app:colors="@array/material_colors"-->
-            <com.dyzs.conciseimageeditor.view.ColorSeekBar
+            <!--<com.dyzs.conciseimageeditor.view.ColorSeekBar-->
+                <!--android:id="@+id/csb_edit_panel_font_color"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1.0"-->
+                <!--android:maxHeight="10.0dip"-->
+                <!--android:minHeight="10.0dip"-->
+                <!--/>-->
+            <com.dyzs.conciseimageeditor.view.CustomSeekBar
                 android:id="@+id/csb_edit_panel_font_color"
-                android:layout_width="fill_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.0"
-                android:maxHeight="10.0dip"
-                android:minHeight="10.0dip"
-                />
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@android:color/transparent"
+                android:thumb="@mipmap/icon_resize"
+                android:thumbOffset="12dp"/>
             <ImageView
                 android:id="@+id/iv_color_show"
                 android:layout_width="20.0dip"
                 android:layout_height="20.0dip"
-                android:layout_marginRight="10.0dip"
+                android:layout_marginLeft="10.0dip"
                 android:src="@drawable/style_color_border" />
         </LinearLayout>
         <LinearLayout

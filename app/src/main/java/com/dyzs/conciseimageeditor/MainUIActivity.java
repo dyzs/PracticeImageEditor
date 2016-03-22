@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -31,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dyzs.conciseimageeditor.entity.MatrixInfo;
@@ -39,6 +41,8 @@ import com.dyzs.conciseimageeditor.utils.CommonUtils;
 import com.dyzs.conciseimageeditor.utils.DensityUtils;
 import com.dyzs.conciseimageeditor.utils.FileUtils;
 import com.dyzs.conciseimageeditor.utils.ToastUtil;
+import com.dyzs.conciseimageeditor.view.CustomSeekBar;
+import com.dyzs.conciseimageeditor.view.ProgressItem;
 import com.dyzs.conciseimageeditor.view.StickerView;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.ViewPropertyAnimator;
@@ -86,11 +90,21 @@ public class MainUIActivity extends Activity {
     private float[] scaleAndLeaveSize;
     private FrameLayout fl_image_editor_base_layout;
 
-    private EditText et;
 
     // edit panel params
     private LinearLayout edit_panel;            // 文字编辑面板，使用 LayoutInflate
-//    private ImageView
+    private ImageView ivKeyboardOptions;
+    private EditText etOperateText;
+    private Button btnComplete;
+    private SeekBar sbFontSize;
+    private CustomSeekBar csbFontColor;
+    private float totalSpan = 9;
+    private float[] colorSpan = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    private int[] colorValues = {R.color.rainbow_red, R.color.rainbow_orange, R.color.rainbow_yellow,
+            R.color.rainbow_green, R.color.rainbow_blue, R.color.rainbow_cyan,
+            R.color.rainbow_purple, R.color.rainbow_black, R.color.rainbow_white};    // 红橙黄绿蓝靛紫黑白
+    private ArrayList<ProgressItem> progressItemList;
+    private ProgressItem mProgressItem;
 
     // edit panel params
 
@@ -118,7 +132,7 @@ public class MainUIActivity extends Activity {
 
 
         fl_image_editor_base_layout = (FrameLayout) findViewById(R.id.fl_image_editor_base_layout);
-        et = new EditText(mContext);
+
         initView();
         // 加载图片
         loadBitmap();
@@ -189,6 +203,9 @@ public class MainUIActivity extends Activity {
                         SystemClock.sleep(300);
                         edit_panel = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.layout_edit_panel, null);
                         fl_image_editor_base_layout.addView(edit_panel);
+
+                        csbFontColor = (CustomSeekBar) edit_panel.findViewById(R.id.csb_edit_panel_font_color);
+
                         // 获取编辑 panel 的头高度
                         LinearLayout ll_edit_panel_head = (LinearLayout) edit_panel.findViewById(R.id.ll_edit_panel_head);
                         ll_edit_panel_head.measure(0, 0);
@@ -208,11 +225,14 @@ public class MainUIActivity extends Activity {
                         // TODO 获取文本，和文字颜色
                         createMtvOnLoading = false;
                         openKeyboardOnLoading = false;
+
+                        initDataToSeekBar();
                     } else {
                         edit_panel.setVisibility(View.VISIBLE);
                     }
                 }
             }
+
             @Override
             public void keyBoardHide(int height) {
                 System.out.println("keyboard hide");
@@ -749,6 +769,35 @@ public class MainUIActivity extends Activity {
         FileUtils.saveSerializableMatrixLists(matrixInfoArrayList);
         System.out.println("保存成功~~~~~~~" + imagePath);
         ToastUtil.makeText(mContext, "保存成功~~~~~~~" + imagePath);
+    }
+
+    private void initDataToSeekBar() {
+        progressItemList = new ArrayList<>();
+        for (int i = 0; i < colorSpan.length; i++) {
+            mProgressItem = new ProgressItem();
+            mProgressItem.progressItemPercentage = ((colorSpan[i] / totalSpan) * 100);
+            mProgressItem.color = colorValues[i];
+            progressItemList.add(mProgressItem);
+        }
+        csbFontColor.initData(progressItemList);
+        csbFontColor.invalidate();
+
+        csbFontColor.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                System.out.println("progress:" + progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
 

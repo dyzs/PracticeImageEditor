@@ -28,4 +28,18 @@
     </array>
 
 
+
+
+
+    <array name="font_colors_values">
+        <item>#FF0000</item>
+        <item>#FF7D00</item>
+        <item>#FFFF00</item>
+        <item>#00FF00</item>
+        <item>#0000FF</item>
+        <item>#00FFFF</item>
+        <item>#FF00FF</item>
+        <item>#000000</item>
+        <item>#FFFFFF</item>
+    </array>
 </resources>
