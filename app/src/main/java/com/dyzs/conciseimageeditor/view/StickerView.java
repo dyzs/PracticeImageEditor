@@ -45,7 +45,7 @@ public class StickerView extends ImageView {
     private int topBitmapWidth;
     private int topBitmapHeight;
     private Paint localPaint;
-    private int mScreenwidth, mScreenHeight;
+    private int mScreenWidth, mScreenHeight;
     private static final float BITMAP_SCALE = 0.7f;
     private PointF mid = new PointF();
     private OperationListener operationListener;
@@ -123,7 +123,7 @@ public class StickerView extends ImageView {
         localPaint.setStyle(Paint.Style.STROKE);
         localPaint.setStrokeWidth(1.0f);
         dm = getResources().getDisplayMetrics();
-        mScreenwidth = dm.widthPixels;
+        mScreenWidth = dm.widthPixels;
         mScreenHeight = dm.heightPixels;
 
     }
@@ -142,7 +142,6 @@ public class StickerView extends ImageView {
             float f6 = 0.0F * arrayOfFloat[3] + arrayOfFloat[4] * this.mBitmap.getHeight() + arrayOfFloat[5];
             float f7 = arrayOfFloat[0] * this.mBitmap.getWidth() + arrayOfFloat[1] * this.mBitmap.getHeight() + arrayOfFloat[2];
             float f8 = arrayOfFloat[3] * this.mBitmap.getWidth() + arrayOfFloat[4] * this.mBitmap.getHeight() + arrayOfFloat[5];
-
             canvas.save();
             canvas.drawBitmap(mBitmap, matrix, null);
             //删除在右上角
@@ -215,6 +214,10 @@ public class StickerView extends ImageView {
     // maidou add end-----------------------------------------
 
 
+    /**
+     * @warning 原比例为除数2
+     * @param bitmap
+     */
     public void setBitmap(Bitmap bitmap) {
         matrix.reset();
         mBitmap = bitmap;
@@ -223,10 +226,11 @@ public class StickerView extends ImageView {
         int w = mBitmap.getWidth();
         int h = mBitmap.getHeight();
         originalWidth = w;
-        float initScale = (MIN_SCALE + MAX_SCALE) / 2;
-        matrix.postScale(initScale, initScale, w / 2, h / 2);
+        float initScale = (MIN_SCALE + MAX_SCALE) / 3;
+        matrix.postScale(initScale, initScale, w / 3, h / 3);
         //Y坐标为 （顶部操作栏+正方形图）/2
-        matrix.postTranslate(mScreenwidth / 2 - w / 2, (mScreenwidth) / 2 - h / 2);
+        matrix.postTranslate((mScreenWidth - w) / 3 * 2, (mScreenWidth - h) / 3 * 2);
+        // matrix.postTranslate(mScreenWidth / 2 - w / 2, mScreenWidth / 2 - h / 2);
         invalidate();
     }
 
@@ -238,31 +242,31 @@ public class StickerView extends ImageView {
     private void initBitmaps() {
         //当图片的宽比高大时 按照宽计算 缩放大小根据图片的大小而改变 最小为图片的1/8 最大为屏幕宽
         if (mBitmap.getWidth() >= mBitmap.getHeight()) {
-            float minWidth = mScreenwidth / 8;
+            float minWidth = mScreenWidth / 8;
             if (mBitmap.getWidth() < minWidth) {
                 MIN_SCALE = 1f;
             } else {
                 MIN_SCALE = 1.0f * minWidth / mBitmap.getWidth();
             }
 
-            if (mBitmap.getWidth() > mScreenwidth) {
+            if (mBitmap.getWidth() > mScreenWidth) {
                 MAX_SCALE = 1;
             } else {
-                MAX_SCALE = 1.0f * mScreenwidth / mBitmap.getWidth();
+                MAX_SCALE = 1.0f * mScreenWidth / mBitmap.getWidth();
             }
         } else {
             //当图片高比宽大时，按照图片的高计算
-            float minHeight = mScreenwidth / 8;
+            float minHeight = mScreenWidth / 8;
             if (mBitmap.getHeight() < minHeight) {
                 MIN_SCALE = 1f;
             } else {
                 MIN_SCALE = 1.0f * minHeight / mBitmap.getHeight();
             }
 
-            if (mBitmap.getHeight() > mScreenwidth) {
+            if (mBitmap.getHeight() > mScreenWidth) {
                 MAX_SCALE = 1;
             } else {
-                MAX_SCALE = 1.0f * mScreenwidth / mBitmap.getHeight();
+                MAX_SCALE = 1.0f * mScreenWidth / mBitmap.getHeight();
             }
         }
 
@@ -428,10 +432,10 @@ public class StickerView extends ImageView {
         Log.d(TAG, "midX : " + minX + " midY : " + minY);
         model.setDegree((float) Math.toRadians(rAngle));
         //TODO 占屏幕百分比
-        float precentWidth = (mBitmap.getWidth() * rScale) / mScreenwidth;
+        float precentWidth = (mBitmap.getWidth() * rScale) / mScreenWidth;
         model.setScaling(precentWidth);
-        model.setxLocation(minX / mScreenwidth);
-        model.setyLocation(minY / mScreenwidth);
+        model.setxLocation(minX / mScreenWidth);
+        model.setyLocation(minY / mScreenWidth);
         model.setStickerId(stickerId);
         if (isHorizonMirror) {
             model.setHorizonMirror(1);
