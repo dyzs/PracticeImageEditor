@@ -79,7 +79,7 @@
                 android:maxHeight="10.0dip"
                 android:paddingLeft="10.0dip"
                 android:paddingRight="10.0dip"
-                android:max="100"
+                android:max="50"
                 android:thumb="@mipmap/seek_bar_diy_thumb_bkg_down"
                 android:thumbOffset="12dp"
                 />
@@ -123,16 +123,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:max="100"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:max="89"
                 android:progress="0"
                 android:progressDrawable="@android:color/transparent"
                 android:thumb="@mipmap/seek_bar_diy_thumb_bkg_down"
                 android:thumbOffset="12dp"/>
             <ImageView
-                android:id="@+id/iv_color_show"
+                android:id="@+id/iv_edit_panel_color_show"
                 android:layout_width="20.0dip"
                 android:layout_height="20.0dip"
-                android:layout_marginLeft="10.0dip"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:src="@drawable/style_color_border" />
         </LinearLayout>
         <LinearLayout
@@ -143,13 +146,14 @@
             android:orientation="vertical"
             android:gravity="center_vertical">
             <TextView
-                android:id="@+id/tv_textChoose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10.0dip"
                 android:text="字体选择："
                 android:textSize="15sp"
                 android:textColor="@android:color/white" />
+            <include layout="@layout/pop_font_select" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_typeface_list"
                 android:layout_width="match_parent"
