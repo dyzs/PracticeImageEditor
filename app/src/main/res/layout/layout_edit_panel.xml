@@ -80,6 +80,8 @@
                 android:paddingLeft="10.0dip"
                 android:paddingRight="10.0dip"
                 android:max="100"
+                android:thumb="@mipmap/seek_bar_diy_thumb_bkg_down"
+                android:thumbOffset="12dp"
                 />
         </LinearLayout>
 
@@ -124,7 +126,7 @@
                 android:max="100"
                 android:progress="0"
                 android:progressDrawable="@android:color/transparent"
-                android:thumb="@mipmap/icon_resize"
+                android:thumb="@mipmap/seek_bar_diy_thumb_bkg_down"
                 android:thumbOffset="12dp"/>
             <ImageView
                 android:id="@+id/iv_color_show"

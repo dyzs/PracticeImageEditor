@@ -9,6 +9,8 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
+import com.dyzs.conciseimageeditor.entity.ProgressItem;
+
 public class CustomSeekBar extends SeekBar {
 
 	private ArrayList<ProgressItem> mProgressItemsList;
@@ -40,7 +42,7 @@ public class CustomSeekBar extends SeekBar {
 		if (mProgressItemsList.size() > 0) {
 			int progressBarWidth = getWidth();
 			int progressBarHeight = getHeight();
-			int thumboffset = getThumbOffset();
+			int thumbOffset = getThumbOffset();
 			int lastProgressX = 0;
 			int progressItemWidth, progressItemRight;
 			for (int i = 0; i < mProgressItemsList.size(); i++) {
@@ -60,8 +62,8 @@ public class CustomSeekBar extends SeekBar {
 					progressItemRight = progressBarWidth;
 				}
 				Rect progressRect = new Rect();
-				progressRect.set(lastProgressX, thumboffset / 2,
-						progressItemRight, progressBarHeight - thumboffset / 2);
+				progressRect.set(lastProgressX, thumbOffset / 2,
+						progressItemRight, progressBarHeight - thumbOffset / 2);
 				canvas.drawRect(progressRect, progressPaint);
 				lastProgressX = progressItemRight;
 			}

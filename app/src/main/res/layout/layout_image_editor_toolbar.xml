@@ -18,14 +18,4 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:background="@drawable/btn_save_selector" />
-
-    <ImageView
-        android:visibility="gone"
-        android:id="@+id/iv_pic_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="5dp"
-        android:layout_toLeftOf="@id/bt_save"
-        android:src="@drawable/btn_delete_selector" />
 </RelativeLayout>

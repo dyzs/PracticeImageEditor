@@ -13,45 +13,35 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.dyzs.conciseimageeditor.entity.MatrixInfo;
 import com.dyzs.conciseimageeditor.utils.ColorUtil;
 import com.dyzs.conciseimageeditor.utils.CommonUtils;
-import com.dyzs.conciseimageeditor.utils.DensityUtils;
 import com.dyzs.conciseimageeditor.utils.FileUtils;
 import com.dyzs.conciseimageeditor.utils.ToastUtil;
 import com.dyzs.conciseimageeditor.view.CustomSeekBar;
-import com.dyzs.conciseimageeditor.view.ProgressItem;
+import com.dyzs.conciseimageeditor.entity.ProgressItem;
 import com.dyzs.conciseimageeditor.view.StickerView;
-import com.nineoldandroids.view.ViewHelper;
-import com.nineoldandroids.view.ViewPropertyAnimator;
 import com.xinlan.imageeditlibrary.editimage.fliter.PhotoProcessing;
 import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MainUIActivity extends Activity {
     private Context mContext;
@@ -98,13 +88,7 @@ public class MainUIActivity extends Activity {
     private Button btnComplete;
     private SeekBar sbFontSize;
     private CustomSeekBar csbFontColor;
-    private float totalSpan = 9;
-    private float[] colorSpan = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-    private int[] colorValues = {R.color.rainbow_red, R.color.rainbow_orange, R.color.rainbow_yellow,
-            R.color.rainbow_green, R.color.rainbow_blue, R.color.rainbow_cyan,
-            R.color.rainbow_purple, R.color.rainbow_black, R.color.rainbow_white};    // 红橙黄绿蓝靛紫黑白
-    private ArrayList<ProgressItem> progressItemList;
-    private ProgressItem mProgressItem;
+
 
     // edit panel params
 
@@ -772,6 +756,13 @@ public class MainUIActivity extends Activity {
     }
 
     private void initDataToSeekBar() {
+        float totalSpan = 9;
+        float[] colorSpan = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+        int[] colorValues = {R.color.rainbow_red, R.color.rainbow_orange, R.color.rainbow_yellow,
+                R.color.rainbow_green, R.color.rainbow_blue, R.color.rainbow_cyan,
+                R.color.rainbow_purple, R.color.rainbow_black, R.color.rainbow_white};    // 红橙黄绿蓝靛紫黑白
+        ArrayList<ProgressItem> progressItemList;
+        ProgressItem mProgressItem;
         progressItemList = new ArrayList<>();
         for (int i = 0; i < colorSpan.length; i++) {
             mProgressItem = new ProgressItem();
@@ -799,6 +790,4 @@ public class MainUIActivity extends Activity {
             }
         });
     }
-
-
 }

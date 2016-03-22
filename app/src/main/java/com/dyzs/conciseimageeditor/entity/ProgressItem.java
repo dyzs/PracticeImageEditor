@@ -1,4 +1,4 @@
-package com.dyzs.conciseimageeditor.view;
+package com.dyzs.conciseimageeditor.entity;
 
 public class ProgressItem {
 

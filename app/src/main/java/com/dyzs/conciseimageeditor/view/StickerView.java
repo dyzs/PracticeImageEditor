@@ -117,7 +117,7 @@ public class StickerView extends ImageView {
         dst_flipV = new Rect();
         dst_top = new Rect();
         localPaint = new Paint();
-        localPaint.setColor(getResources().getColor(R.color.red_e73a3d));
+        localPaint.setColor(getResources().getColor(R.color.black));
         localPaint.setAntiAlias(true);
         localPaint.setDither(true);
         localPaint.setStyle(Paint.Style.STROKE);
