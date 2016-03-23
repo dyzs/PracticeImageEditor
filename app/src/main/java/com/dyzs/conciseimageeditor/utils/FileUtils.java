@@ -3,6 +3,7 @@ package com.dyzs.conciseimageeditor.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 
 
 import com.dyzs.conciseimageeditor.entity.MatrixInfo;
@@ -12,8 +13,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
@@ -220,6 +223,22 @@ public class FileUtils {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    // 根据流生成一个文件
+    public static File saveStreamToFile(InputStream stream,File file){
+        try {
+            OutputStream outStream = new FileOutputStream(file);
+            byte[] bs = new byte[stream.available()];
+            while(stream.read(bs)!=-1){
+                outStream.write(bs);
+                outStream.flush();
+            }
+            outStream.close();
+        } catch (Exception e) {
+            System.out.println("error:" + e.toString());
+        }
+        return file;
     }
 
 }

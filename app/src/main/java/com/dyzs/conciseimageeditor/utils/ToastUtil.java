@@ -4,7 +4,6 @@ import android.content.Context;
 import android.widget.Toast;
 
 /**
- * GooglePlay
  * 单例模式的 Toast
  * V ? by dyzs
  */

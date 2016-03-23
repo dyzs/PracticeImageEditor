@@ -1,6 +1,7 @@
 package com.dyzs.conciseimageeditor.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
@@ -37,9 +38,10 @@ public class MovableTextView2 extends EditText{
         );
         this.setLayoutParams(layoutParams);
         this.setBackgroundDrawable(getResources().getDrawable(R.drawable.pic_bg_edit_text_9patch_3x3));
-        this.setHint("在此输入标注文字");
-        this.setHintTextColor(Color.WHITE);
+//        this.setHint("在此输入标注文字");
+//        this.setHintTextColor(Color.WHITE);
         this.setBackgroundResource(R.drawable.shape_dotted);
+        this.setText("在此输入标注文字");
         this.setTextColor(Color.WHITE);
         this.setClickable(true);
         this.setFocusable(true);
@@ -50,6 +52,7 @@ public class MovableTextView2 extends EditText{
         this.setColorG(255);
         this.setColorB(255);
         this.setMaxEms(12);
+        this.setColorSeekBarProgress(89);   // progress 对应颜色的 seekBar 的值，因为 colorSeekBar 并没有颜色，只是显示的一张颜色背景
     }
 
     public enum OperateState{
@@ -214,6 +217,13 @@ public class MovableTextView2 extends EditText{
     public void setFirstClick(boolean firstClick) { this.firstClick = firstClick; }
 
 
+    private int colorSeekBarProgress;
+    public int getColorSeekBarProgress() {
+        return colorSeekBarProgress;
+    }
+    public void setColorSeekBarProgress(int progress) {
+        colorSeekBarProgress = progress;
+    }
 
 //    public void tv_btnnnnnnnnnnn(View v){
 //        /**
@@ -260,4 +270,19 @@ public class MovableTextView2 extends EditText{
 //        pBottom = this.parent.getBottom();
 //        // System.out.println("坐上右下:"+pLeft+"/"+pTop+"/"+pRight+"/"+pBottom);
 //    }
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+
+    }
+
+
 }

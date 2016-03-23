@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -13,6 +14,8 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,6 +37,7 @@ import com.dyzs.conciseimageeditor.utils.CommonUtils;
 import com.dyzs.conciseimageeditor.utils.DensityUtils;
 import com.dyzs.conciseimageeditor.utils.FileUtils;
 import com.dyzs.conciseimageeditor.utils.ToastUtil;
+import com.dyzs.conciseimageeditor.view.CarrotEditText;
 import com.dyzs.conciseimageeditor.view.CustomSeekBar;
 import com.dyzs.conciseimageeditor.entity.ProgressItem;
 import com.dyzs.conciseimageeditor.view.StickerView;
@@ -43,7 +46,6 @@ import com.dyzs.conciseimageeditor.utils.BitmapUtils;
 import com.dyzs.conciseimageeditor.view.MovableTextView2;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class MainUIActivity extends Activity {
     private Context mContext;
@@ -69,7 +71,7 @@ public class MainUIActivity extends Activity {
 
 
 
-    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x003;
+    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x001;
     public int keyboardHeight = 0;      // 记录键盘高度
 
     //存储贴纸列表
@@ -85,18 +87,19 @@ public class MainUIActivity extends Activity {
 
     // edit panel params
     private LinearLayout edit_panel;            // 文字编辑面板，使用 LayoutInflate
-    private ImageView ivKeyboardOptions;
-    private EditText etOperateText;
-    private Button btnComplete;
-    private SeekBar sbFontSize;
-    private CustomSeekBar csbFontColor;
-    private ImageView ivColorShow;
+    private ImageView ep_KeyboardOptions;
+    private CarrotEditText ep_OperateText;
+    private Button ep_BtnComplete;
+    private SeekBar ep_FontSize;
+    private CustomSeekBar ep_CsbFontColor;
+    private ImageView ep_IvColorShow;
 
     // edit panel params
 
 
     private boolean openKeyboardOnLoading;
     private boolean createMtvOnLoading;
+    private boolean isFirstAddMtv;
     private KeyboardState mCurKeyboardState;
 
     private enum KeyboardState {
@@ -107,7 +110,7 @@ public class MainUIActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         setContentView(R.layout.activity_main_ui);
         mContext = this;
         mMtvLists = new ArrayList<>();
@@ -115,6 +118,7 @@ public class MainUIActivity extends Activity {
         mStickerViewLists = new ArrayList<>();
         openKeyboardOnLoading = true;
         createMtvOnLoading = true;
+        isFirstAddMtv = true;
 
 
         fl_image_editor_base_layout = (FrameLayout) findViewById(R.id.fl_image_editor_base_layout);
@@ -172,7 +176,6 @@ public class MainUIActivity extends Activity {
         mainBitmap = BitmapUtils.loadImage(this, mCurrImgId, imageWidth, imageHeight);
         copyBitmap = mainBitmap.copy(Bitmap.Config.ARGB_8888, true);
         iv_main_image.setImageBitmap(copyBitmap);
-        System.out.println("Image View:" + iv_main_image.getHeight());
     }
 
     private void handleListener() {
@@ -185,29 +188,28 @@ public class MainUIActivity extends Activity {
                 if (height != 0) {
                     if (createMtvOnLoading && openKeyboardOnLoading) {
                         keyboardHeight = height;
-                        System.out.println("-->" + keyboardHeight);
                         SystemClock.sleep(300);
                         edit_panel = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.layout_edit_panel, null);
                         fl_image_editor_base_layout.addView(edit_panel);
 
-                        ivKeyboardOptions = (ImageView) edit_panel.findViewById(R.id.iv_edit_panel_key_board_options);
-                        etOperateText = (EditText) edit_panel.findViewById(R.id.et_edit_panel_text);
-                        btnComplete = (Button) edit_panel.findViewById(R.id.iv_edit_panel_complete);
-                        sbFontSize = (SeekBar) edit_panel.findViewById(R.id.sb_edit_panel_font_size);
-                        ivColorShow = (ImageView) edit_panel.findViewById(R.id.iv_edit_panel_color_show);
-                        csbFontColor = (CustomSeekBar) edit_panel.findViewById(R.id.csb_edit_panel_font_color);
+                        ep_KeyboardOptions = (ImageView) edit_panel.findViewById(R.id.iv_edit_panel_key_board_options);
+                        ep_OperateText = (CarrotEditText) edit_panel.findViewById(R.id.et_edit_panel_text);
+                        ep_BtnComplete = (Button) edit_panel.findViewById(R.id.iv_edit_panel_complete);
+                        ep_FontSize = (SeekBar) edit_panel.findViewById(R.id.sb_edit_panel_font_size);
+                        ep_IvColorShow = (ImageView) edit_panel.findViewById(R.id.iv_edit_panel_color_show);
+                        ep_CsbFontColor = (CustomSeekBar) edit_panel.findViewById(R.id.csb_edit_panel_font_color);
 
 
                         // 获取编辑 panel 的头高度
                         LinearLayout ll_edit_panel_head = (LinearLayout) edit_panel.findViewById(R.id.ll_edit_panel_head);
                         ll_edit_panel_head.measure(0, 0);
                         int headHeight = ll_edit_panel_head.getMeasuredHeight();
-                        System.out.println("headHeight:" + headHeight);
+
                         // 获取系统的状态栏高度
                         Rect frame = new Rect();
                         getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
                         int statusBarHeight = frame.top;
-                        System.out.println("statusBarHeight:" + statusBarHeight);
+
                         FrameLayout.LayoutParams lps = (FrameLayout.LayoutParams) edit_panel.getLayoutParams();
                         lps.height = keyboardHeight + headHeight;
                         lps.gravity = Gravity.BOTTOM;
@@ -240,7 +242,13 @@ public class MainUIActivity extends Activity {
         rb_word.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addMovableTextView();
+                CommonUtils.hitKeyboardOpenOrNot(mContext);
+                if (isFirstAddMtv) {    // 表示第一次添加 mtv 文本
+                    isFirstAddMtv = false;
+                } else {
+                    // 设置弹出软键盘
+                    addMovableTextView();
+                }
             }
         });
 
@@ -318,19 +326,21 @@ public class MainUIActivity extends Activity {
         }
     }
 
-    private void loadMtvDataIntoEditPanel(MovableTextView2 movableTextView2) {
+    private void loadMtvDataIntoEditPanel(MovableTextView2 currMtv) {
         if (edit_panel.getVisibility() == View.INVISIBLE) {return;}
-        // TODO 遍历 mtv 集合，设置选中状态
         for (MovableTextView2 m : mMtvLists) {
-            System.out.println("mMtvLists item selected：" + m.isSelected());
             m.setSelected(false);
-            if (m.equals(movableTextView2)) {
-                m.setSelected(true);
+            if (m.equals(currMtv)) {
+                m.setSelected(true);    // 此步操作给编辑CarrotEditText事件做前提操作
             }
         }
-        System.out.println("movableTextView2：" + movableTextView2.isSelected());
-        // TODO 添加数据啦啦啦
-//        movableTextView2
+        // TODO 添加数据
+        ep_OperateText.setText(currMtv.getText());
+        ep_OperateText.setSelection(currMtv.getText().length());   // 设置光标的位置
+        ep_IvColorShow.setBackgroundColor(currMtv.getCurrentTextColor());
+        ep_CsbFontColor.setProgress(currMtv.getColorSeekBarProgress());
+        // ep_CsbFontColor.setProgress();
+        ep_FontSize.setProgress(DensityUtils.px2dp(mContext, currMtv.getTextSize()));
 
     }
 
@@ -366,19 +376,32 @@ public class MainUIActivity extends Activity {
         }
     }// end inner class
 
-    // TODO 怎么判断处理当前的这个 mtv 是第一次点击
     private void addMovableTextView() {
         if (mMtvLists != null && mMtvLists.size() > 0) {
             for (MovableTextView2 m : mMtvLists) {
                 m.setSelected(false);
                 m.setFirstClick(false);
-                System.out.println("mMtvLists :" + m.isSelected());
             }
         }
-
         final MovableTextView2 mtv = new MovableTextView2(mContext);
-        mtv.setText("请输入文字~");
+        // mtv.setText("请输入文字~");
         mtv.setSelected(true);
+        mtv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                resetLayoutParams(mtv, false, 0, 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         mtv.setOnCustomClickListener(new MTVClickListener(mtv));
         mtv.setFirstClick(true);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mtv.getLayoutParams();
@@ -629,8 +652,6 @@ public class MainUIActivity extends Activity {
         } else {
             leaveW = (svWidth - copyBitWidth / scale) / 2;
         }
-        System.out.println(":imageView save params:" + svHeight);
-        System.out.println(scale + "scale------:" + scaleX + ":" + scaleY);
         scaleAndLeaveSize[0] = scale;       // 表示图片与屏幕的缩放比
         scaleAndLeaveSize[1] = leaveW;      // 表示图片的X轴留白区域
         scaleAndLeaveSize[2] = leaveH;      // 表示图片的Y轴留白区域
@@ -765,26 +786,34 @@ public class MainUIActivity extends Activity {
             mProgressItem.color = colorValues[i];
             progressItemList.add(mProgressItem);
         }
-        csbFontColor.initData(progressItemList);
-        csbFontColor.invalidate();
+        ep_CsbFontColor.initData(progressItemList);
+        ep_CsbFontColor.invalidate();
     }
 
+    /**
+     * @details 处理文字编辑面板的事件
+     */
     private void handleEditPanelEvent() {
-        csbFontColor.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        ep_CsbFontColor.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int curColor = getResources().getColor(colorValues[CommonUtils.matchColor(progress)]);
-                ivColorShow.setBackgroundColor(curColor);
-                // TODO 遍历当前 mtv，设置颜色
+                int curColor = getResources().getColor(colorValues[CommonUtils.matchedColor(progress)]);
+                ep_IvColorShow.setBackgroundColor(curColor);
                 for (MovableTextView2 m : mMtvLists) {
                     if (m.isSelected()) {
                         m.setTextColor(curColor);
+                        m.setColorSeekBarProgress(progress);
+                        int[] rgb = ColorUtil.getColorRGB(curColor);
+                        m.setColorR(rgb[0]);
+                        m.setColorG(rgb[1]);
+                        m.setColorB(rgb[2]);
                     }
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+
             }
 
             @Override
@@ -792,21 +821,27 @@ public class MainUIActivity extends Activity {
             }
         });
 
-        ivKeyboardOptions.setOnClickListener(new View.OnClickListener() {
+        ep_KeyboardOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 operateKeyboardState();
             }
         });
 
-        btnComplete.setOnClickListener(new View.OnClickListener() {
+        ep_BtnComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                for (MovableTextView2 mtv : mMtvLists) {
+                    if (mtv.isSelected() && mtv.getText().length() == 0) {
+                        mMtvLists.remove(mtv);
+                        fl_main_content.removeView(mtv);
+                    }
+                }
                 hideEditPanelAndCloseKeyboard();
             }
         });
 
-        sbFontSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        ep_FontSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (progress < 10) return;
@@ -836,10 +871,40 @@ public class MainUIActivity extends Activity {
         edit_panel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // 空实现点击方法，拦截面板点击事件，防止出现编辑面板低下的RadioGroup控件的焦点抢夺
             }
         });
 
 
+        ep_OperateText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                for (MovableTextView2 mtv : mMtvLists) {
+                    if (mtv.isSelected()) {
+                        mtv.setText(s);
+                    }
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    @Deprecated
+    private MovableTextView2 getOperateMtv() {
+        for (MovableTextView2 mtv : mMtvLists) {
+            if (mtv.isSelected()) {
+                return mtv;
+            }
+        }
+        return null;
     }
 
 
@@ -849,6 +914,7 @@ public class MainUIActivity extends Activity {
     private void operateKeyboardState() {
         if (mCurKeyboardState == KeyboardState.STATE_OPEN) {
             mCurKeyboardState = KeyboardState.STATE_HIDE;
+            // TODO
         } else if (mCurKeyboardState == KeyboardState.STATE_HIDE) {
             mCurKeyboardState = KeyboardState.STATE_OPEN;
         }
@@ -868,6 +934,14 @@ public class MainUIActivity extends Activity {
         }
     }
 
+    /**
+     * 重置参数
+     * @param mtv
+     * @param isEditStateReload
+     * @param top
+     * @param left
+     */
+    // TODO ===========================
     private void resetLayoutParams(MovableTextView2 mtv, boolean isEditStateReload, int top, int left) {
         mtv.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),

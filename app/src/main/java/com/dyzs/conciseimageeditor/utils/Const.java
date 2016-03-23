@@ -2,6 +2,8 @@ package com.dyzs.conciseimageeditor.utils;
 
 import android.os.Environment;
 
+import java.io.File;
+
 /**
  * Created by maidou on 2016/1/13.
  */
@@ -40,4 +42,10 @@ public interface Const {
     String TYPE_HANDSOME = TYPE_FACE_PATH + "handsome.ttf";
     String TYPE_GIRLS = TYPE_FACE_PATH + "girls.ttf";
     String TYPE_SCREAM = TYPE_FACE_PATH + "scream.ttf";
+
+    /**字体相关文件在SD卡上的路径*/
+    String FONT_PATH = Environment.getExternalStorageDirectory()+ File.separator+"anybeen"+File.separator+"font";
+
+    //字体文件下载
+    String INTENT_ACTION_FONT_DOWNLOAD = "com.anybeen.mark.app.font.download";
 }
