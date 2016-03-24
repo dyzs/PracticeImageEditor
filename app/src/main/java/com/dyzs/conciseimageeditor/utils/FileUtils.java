@@ -175,7 +175,7 @@ public class FileUtils {
         ArrayList<CarrotInfo> lists;
         String sd = Environment.getExternalStorageDirectory().getAbsolutePath();
         try {
-            FileInputStream fs = new FileInputStream(sd + "/" + "matrix.txt");
+            FileInputStream fs = new FileInputStream(sd + "/" + "carrot.txt");
             ObjectInputStream ois = new ObjectInputStream(fs);
             lists = (ArrayList<CarrotInfo>) ois.readObject();
             ois.close();

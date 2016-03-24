@@ -129,6 +129,8 @@ public class MainUIActivity extends Activity {
         handleListener();
 
         reloadStickerMore();
+
+        reloadCarrot();
     }
 
 
@@ -672,6 +674,20 @@ public class MainUIActivity extends Activity {
     }
 
     /**
+     * @details 从本地文件中载入文本的序列化数据
+     */
+    private void reloadCarrot() {
+        ArrayList<CarrotInfo> carrotInfoLists = FileUtils.readFileToCarrotInfoLists();
+        if (carrotInfoLists == null)return;
+        for (CarrotInfo carrotInfo: carrotInfoLists) {
+            //wait TODO: 2016/3/24
+//            final MovableTextView2 newAddMtv = new MovableTextView2(mContext);
+//            fl_main_content.addView(newAddMtv);
+//            mMtvLists.add(newAddMtv);
+        }
+    }
+
+    /**
      * @details 保存贴纸和文本
      * @param canvas
      */
@@ -757,7 +773,7 @@ public class MainUIActivity extends Activity {
         }
 
         FileUtils.saveSerializableCarrotLists(carrotInfoArrayList);
-        System.out.println("保存贴纸成功~~~~~~~");
+        System.out.println("保存文本成功~~~~~~~");
 
 //        mMtvLists.clear();
 //        mMtvLists = null;
