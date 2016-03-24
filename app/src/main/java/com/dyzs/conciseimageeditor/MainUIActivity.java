@@ -59,8 +59,7 @@ public class MainUIActivity extends Activity {
     private RadioButton rb_word;
     private RadioButton rb_sticker;
 
-    // tempTest
-    private ArrayList<MovableTextView2> mMtvLists;
+
 
     private int imageWidth, imageHeight;
     private Bitmap mainBitmap;
@@ -72,16 +71,15 @@ public class MainUIActivity extends Activity {
 
 
     private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x001;
-    public int keyboardHeight = 0;      // 记录键盘高度
+    public int keyboardHeight = 0;              // 记录键盘高度
 
-    //存储贴纸列表
-    private ArrayList<View> mViews;
 
-    //当前处于编辑状态的贴纸
-    private StickerView mCurrentView;
+    @Deprecated //未使用到
+    private StickerView mCurrentView;           // 当前处于编辑状态的贴纸
 
-    private ArrayList<StickerView> mStickerViewLists;
-    private float[] scaleAndLeaveSize;
+    private ArrayList<MovableTextView2> mMtvLists;  // 存储文字列表
+    private ArrayList<StickerView> mStickerViews;   // 存储贴纸列表
+    private float[] scaleAndLeaveSize;              // 计算三个缩放比例
     private FrameLayout fl_image_editor_base_layout;
 
 
@@ -93,7 +91,6 @@ public class MainUIActivity extends Activity {
     private SeekBar ep_FontSize;
     private CustomSeekBar ep_CsbFontColor;
     private ImageView ep_IvColorShow;
-
     // edit panel params
 
 
@@ -114,8 +111,7 @@ public class MainUIActivity extends Activity {
         setContentView(R.layout.activity_main_ui);
         mContext = this;
         mMtvLists = new ArrayList<>();
-        mViews = new ArrayList<>();
-        mStickerViewLists = new ArrayList<>();
+        mStickerViews = new ArrayList<>();
         openKeyboardOnLoading = true;
         createMtvOnLoading = true;
         isFirstAddMtv = true;
@@ -129,7 +125,6 @@ public class MainUIActivity extends Activity {
 
         handleListener();
 
-        // reloadSticker();
         reloadStickerMore();
     }
 
@@ -206,23 +201,24 @@ public class MainUIActivity extends Activity {
                         int headHeight = ll_edit_panel_head.getMeasuredHeight();
 
                         // 获取系统的状态栏高度
-                        Rect frame = new Rect();
-                        getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
-                        int statusBarHeight = frame.top;
+//                        Rect frame = new Rect();
+//                        getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+//                        int statusBarHeight = frame.top;
 
                         FrameLayout.LayoutParams lps = (FrameLayout.LayoutParams) edit_panel.getLayoutParams();
                         lps.height = keyboardHeight + headHeight;
                         lps.gravity = Gravity.BOTTOM;
                         edit_panel.setLayoutParams(lps);
-
+                        // TODO 字体设置未完成
                         addMovableTextView();
-                        // TODO 获取文本，和文字颜色
+                        initDataToSeekBar();
+                        handleEditPanelEvent();
+
+                        // MovableTextView2 cur = mMtvLists.get(0);
+                        loadMtvDataIntoEditPanel(mMtvLists.get(0));
 
                         createMtvOnLoading = false;
                         openKeyboardOnLoading = false;
-
-                        initDataToSeekBar();
-                        handleEditPanelEvent();
                     } else {
                         edit_panel.setVisibility(View.VISIBLE);
                     }
@@ -275,7 +271,7 @@ public class MainUIActivity extends Activity {
             // 在图片全部逻辑加载完成后，计算图片加载后与屏幕的缩放比与留白区域
             calcScaleAndLeaveSize();
             Canvas canvas = new Canvas(copyBitmap);
-            saveStickerViews(canvas);
+            saveViews(canvas);
         }
     }
 
@@ -326,6 +322,10 @@ public class MainUIActivity extends Activity {
         }
     }
 
+    /**
+     * 加载 mtv 数据到 editPanel 中
+     * @param currMtv
+     */
     private void loadMtvDataIntoEditPanel(MovableTextView2 currMtv) {
         if (edit_panel.getVisibility() == View.INVISIBLE) {return;}
         for (MovableTextView2 m : mMtvLists) {
@@ -376,6 +376,9 @@ public class MainUIActivity extends Activity {
         }
     }// end inner class
 
+    /**
+     * 添加一个文本控件
+     */
     private void addMovableTextView() {
         if (mMtvLists != null && mMtvLists.size() > 0) {
             for (MovableTextView2 m : mMtvLists) {
@@ -384,7 +387,6 @@ public class MainUIActivity extends Activity {
             }
         }
         final MovableTextView2 mtv = new MovableTextView2(mContext);
-        // mtv.setText("请输入文字~");
         mtv.setSelected(true);
         mtv.addTextChangedListener(new TextWatcher() {
             @Override
@@ -409,6 +411,7 @@ public class MainUIActivity extends Activity {
         mtv.setLayoutParams(lp);
         fl_main_content.addView(mtv);
         mMtvLists.add(mtv);
+        loadMtvDataIntoEditPanel(mtv);
     }
 
     /**
@@ -461,7 +464,7 @@ public class MainUIActivity extends Activity {
         stickerView.setOperationListener(new StickerView.OperationListener() {
             @Override
             public void onDeleteClick() {
-                mViews.remove(stickerView);
+                mStickerViews.remove(stickerView);
                 fl_main_content.removeView(stickerView);
             }
 
@@ -474,19 +477,19 @@ public class MainUIActivity extends Activity {
 
             @Override
             public void onTop(StickerView stickerView) {
-                int position = mViews.indexOf(stickerView);
-                if (position == mViews.size() - 1) {
+                int position = mStickerViews.indexOf(stickerView);
+                if (position == mStickerViews.size() - 1) {
                     return;
                 }
-                StickerView stickerTemp = (StickerView) mViews.remove(position);
-                mViews.add(mViews.size(), stickerTemp);
+                StickerView stickerTemp = mStickerViews.remove(position);
+                mStickerViews.add(mStickerViews.size(), stickerTemp);
             }
         });
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         fl_main_content.addView(stickerView, lp);
-        mViews.add(stickerView);
+        mStickerViews.add(stickerView);
         setCurrentEdit(stickerView);
-        mStickerViewLists.add(stickerView);
+        mStickerViews.add(stickerView);
     }
 
     /**
@@ -671,7 +674,8 @@ public class MainUIActivity extends Activity {
             stickerView.setOperationListener(new StickerView.OperationListener() {
                 @Override
                 public void onDeleteClick() {
-                    mViews.remove(stickerView);
+//                    mViews.remove(stickerView);
+                    mStickerViews.remove(stickerView);
                     fl_main_content.removeView(stickerView);
                 }
 
@@ -683,71 +687,27 @@ public class MainUIActivity extends Activity {
                 }
                 @Override
                 public void onTop(StickerView stickerView) {
-                    int position = mViews.indexOf(stickerView);
-                    if (position == mViews.size() - 1) {
+                    int position = mStickerViews.indexOf(stickerView);
+                    if (position == mStickerViews.size() - 1) {
                         return;
                     }
-                    StickerView stickerTemp = (StickerView) mViews.remove(position);
-                    mViews.add(mViews.size(), stickerTemp);
+                    StickerView stickerTemp = mStickerViews.remove(position);
+                    mStickerViews.add(mStickerViews.size(), stickerTemp);
                 }
             });
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
             fl_main_content.addView(stickerView, lp);
-            mViews.add(stickerView);
+            mStickerViews.add(stickerView);
             setCurrentEdit(stickerView);
         }
     }
 
     /**
-     * @details 在打开的时候载入单个贴纸
-     */
-    private void reloadSticker() {
-        MatrixInfo matrixInfo = FileUtils.readFileToMatrixInfo();
-        if (matrixInfo == null)return;
-        float[] floats = matrixInfo.floatArr;
-        final StickerView stickerView = new StickerView(this);
-        stickerView.setImageResource(R.mipmap.ic_cat);
-        // maidou add
-        stickerView.reloadBitmapAfterOnDraw(floats);
-        stickerView.setOperationListener(new StickerView.OperationListener() {
-            @Override
-            public void onDeleteClick() {
-                mViews.remove(stickerView);
-                fl_main_content.removeView(stickerView);
-            }
-
-            @Override
-            public void onEdit(StickerView stickerView) {
-//                if (mCurrentEditTextView != null) {
-//                    mCurrentEditTextView.setInEdit(false);
-//                }
-                mCurrentView.setInEdit(false);
-                mCurrentView = stickerView;
-                mCurrentView.setInEdit(true);
-            }
-
-            @Override
-            public void onTop(StickerView stickerView) {
-                int position = mViews.indexOf(stickerView);
-                if (position == mViews.size() - 1) {
-                    return;
-                }
-                StickerView stickerTemp = (StickerView) mViews.remove(position);
-                mViews.add(mViews.size(), stickerTemp);
-            }
-        });
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        fl_main_content.addView(stickerView, lp);
-        mViews.add(stickerView);
-        setCurrentEdit(stickerView);
-    }
-
-    /**
-     * @details 保存贴纸
+     * @details 保存贴纸和文本
      * @param canvas
      */
-    private void saveStickerViews(Canvas canvas) {
-        if (mStickerViewLists == null || mStickerViewLists.size() <= 0) {
+    private void saveViews(Canvas canvas) {
+        if (mStickerViews == null || mStickerViews.size() <= 0) {
             return;
         }
         float leaveH = 0f, leaveW = 0f, scale = 0f;
@@ -758,7 +718,7 @@ public class MainUIActivity extends Activity {
         canvas.translate(-leaveW, -leaveH);
         ArrayList<MatrixInfo> matrixInfoArrayList = new ArrayList<>();
         MatrixInfo matrixInfo;
-        for(StickerView sv:mStickerViewLists) {
+        for(StickerView sv:mStickerViews) {
             canvas.drawBitmap(sv.getBitmap(), sv.saveMatrix(), null);
             matrixInfo = new MatrixInfo();
             matrixInfo.floatArr = sv.saveMatrixFloatArray();

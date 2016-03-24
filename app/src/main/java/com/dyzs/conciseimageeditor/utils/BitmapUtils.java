@@ -859,7 +859,6 @@ public class BitmapUtils {
 		BitmapFactory.decodeResource(context.getResources(), resId, opts);
 		final int height = opts.outHeight;
 		final int width = opts.outWidth;
-		System.out.println("loadImage 原图width：" + width + "/" + height);
 		int inSampleSize = 1;
 		if (height > imgHeight || width > imgWidth) {
 			if (width > height) {
