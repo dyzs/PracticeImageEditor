@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.util.Log;
 
 
+import com.dyzs.conciseimageeditor.entity.CarrotInfo;
 import com.dyzs.conciseimageeditor.entity.MatrixInfo;
 
 import java.io.File;
@@ -148,6 +149,43 @@ public class FileUtils {
     }
 
     // ---------------
+    /**
+     * @details 保存多个文本信息到本次磁盘中
+     * @param carrotInfoArrayList
+     */
+    public static void saveSerializableCarrotLists(ArrayList<CarrotInfo> carrotInfoArrayList) {
+        if (carrotInfoArrayList == null || carrotInfoArrayList.size() <= 0) return;
+        String sd = Environment.getExternalStorageDirectory().getAbsolutePath();
+        try {
+            FileOutputStream fs = new FileOutputStream(sd + "/" + "carrot.txt");
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(carrotInfoArrayList);
+            os.flush();
+            os.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * @details 从文件中读取多个文本控件的信息
+     * @return MatrixInfoLists
+     */
+    public static ArrayList<CarrotInfo> readFileToCarrotInfoLists() {
+        ArrayList<CarrotInfo> lists;
+        String sd = Environment.getExternalStorageDirectory().getAbsolutePath();
+        try {
+            FileInputStream fs = new FileInputStream(sd + "/" + "matrix.txt");
+            ObjectInputStream ois = new ObjectInputStream(fs);
+            lists = (ArrayList<CarrotInfo>) ois.readObject();
+            ois.close();
+            return lists;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * @details 保存多个贴纸的矩阵信息

@@ -257,12 +257,6 @@ public class MainUIActivity extends Activity {
         ll_base_edit_panel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
-//                // 清理所有选中状态
-//                for (MovableTextView2 m : mMtvLists) {
-//                    m.setSelected(false);
-//                }
-//                hideEditPanelAndCloseKeyboard();
                 operateCarrotComplete();
             }
         });
@@ -690,11 +684,13 @@ public class MainUIActivity extends Activity {
         // 保存文本
         saveBeautyWords(canvas, scale, leaveW, leaveH);
 
+
         // 保存贴纸
         saveSticker(canvas);
 
         // 最后生成图片
         String imagePath = FileUtils.saveBitmapToLocal(copyBitmap, mContext);
+        iv_main_image.setImageBitmap(copyBitmap);
         ToastUtil.makeText(mContext, "保存图片成功~~~~~~~" + imagePath);
     }
     private void saveBeautyWords(Canvas canvas, float scale, float leaveW, float leaveH) {
@@ -703,7 +699,7 @@ public class MainUIActivity extends Activity {
         }
 //        // 在保存之前先执行完成逻辑
 //        if (mMtvLists != null && mMtvLists.size() > 0) {
-//            operateCarrotComplete();
+            operateCarrotComplete();
 //        }
         Paint mPaint = new Paint();     // 初始化画笔
         mPaint.setAntiAlias(true);      // 设置消除锯齿
@@ -723,18 +719,8 @@ public class MainUIActivity extends Activity {
             float textViewH = mtv.getHeight() * 1.0f;
             float imgW = iv_main_image.getWidth() * 1.0f;
             float imgH = iv_main_image.getHeight() * 1.0f;
-//            float bitW = copyBitmap.getWidth() * 1.0f;
-//            float bitH = copyBitmap.getHeight() * 1.0f;
-//            scaleXX = bitW / imgW;
-//            scaleYY = bitH / imgH;
-//            float scale = scaleXX > scaleYY ? scaleXX : scaleYY;
-//            if (scaleXX > scaleYY) {
-//                leaveH = (imgH - bitH / scale) / 2;
-//            } else {
-//                leaveW = (imgW - bitW / scale) / 2;
-//            }
             // 得到根据缩放比的文本高度，确定画笔绘画时的文本的高度，大小
-            float textSize = mtv.getTextSize() * scale;
+            float textSize = mtv.getTextSize(); // * scale
             // textSize 就是文本在绘画时的高度
             mPaint.setTextSize(textSize);
 
@@ -754,7 +740,7 @@ public class MainUIActivity extends Activity {
             // saveBottom = (int) (pointBottomBeforeDraw * scale);
             canvas.drawText(
                     mtv.getText().toString(),
-                    saveLeft, saveBottom,
+                    textViewL, textViewB,
                     mPaint
             );
 
@@ -770,13 +756,15 @@ public class MainUIActivity extends Activity {
             carrotInfo.pLeft = (int) textViewL;
             carrotInfo.pTop = (int) textViewT;
             carrotInfoArrayList.add(carrotInfo);      // 保存了位置，颜色等属性参数
-            fl_main_content.removeView(mtv);
+
+            // fl_main_content.removeView(mtv);
         }
-        // TODO 序列化保存文本参数
 
+        FileUtils.saveSerializableCarrotLists(carrotInfoArrayList);
+        System.out.println("保存贴纸成功~~~~~~~");
 
-        mMtvLists.clear();
-        mMtvLists = null;
+//        mMtvLists.clear();
+//        mMtvLists = null;
     }
 
     /**
@@ -794,12 +782,12 @@ public class MainUIActivity extends Activity {
             matrixInfo = new MatrixInfo();
             matrixInfo.floatArr = sv.saveMatrixFloatArray();
             matrixInfoArrayList.add(matrixInfo);
-            fl_main_content.removeView(sv);
+//            fl_main_content.removeView(sv);
         }
         FileUtils.saveSerializableMatrixLists(matrixInfoArrayList);
         System.out.println("保存贴纸成功~~~~~~~");
-        mStickerViews.clear();
-        mStickerViews = null;
+//        mStickerViews.clear();
+//        mStickerViews = null;
     }
 
     /**
