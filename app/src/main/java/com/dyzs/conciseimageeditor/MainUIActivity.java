@@ -257,12 +257,13 @@ public class MainUIActivity extends Activity {
         ll_base_edit_panel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
-                // 清理所有选中状态
-                for (MovableTextView2 m : mMtvLists) {
-                    m.setSelected(false);
-                }
-                hideEditPanelAndCloseKeyboard();
+//                ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
+//                // 清理所有选中状态
+//                for (MovableTextView2 m : mMtvLists) {
+//                    m.setSelected(false);
+//                }
+//                hideEditPanelAndCloseKeyboard();
+                operateCarrotComplete();
             }
         });
     }
@@ -929,13 +930,17 @@ public class MainUIActivity extends Activity {
      * 完成按钮的点击操作
      */
     private void operateCarrotComplete() {
-
-        ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
-        for (MovableTextView2 mtv : mMtvLists) {
-            if (mtv.isSelected() && mtv.getText().length() == 0) {
-                mMtvLists.remove(mtv);
-                fl_main_content.removeView(mtv);
+        ToastUtil.makeText(mContext, "文本控件事件被拦截了");
+        MovableTextView2 delMtv = null;
+        int listSize = mMtvLists.size();
+        for(int i = 0; i < listSize; i++) {
+            if (mMtvLists.get(i).getText().length() == 0) {
+                delMtv = mMtvLists.get(i);
             }
+        }
+        if (delMtv != null) {
+            mMtvLists.remove(delMtv);
+            fl_main_content.removeView(delMtv);
         }
         // 清理所有选中状态
         for (MovableTextView2 m : mMtvLists) {
