@@ -38,6 +38,7 @@ import com.dyzs.conciseimageeditor.utils.ColorUtil;
 import com.dyzs.conciseimageeditor.utils.CommonUtils;
 import com.dyzs.conciseimageeditor.utils.DensityUtils;
 import com.dyzs.conciseimageeditor.utils.FileUtils;
+import com.dyzs.conciseimageeditor.utils.FontMatrixUtils;
 import com.dyzs.conciseimageeditor.utils.ToastUtil;
 import com.dyzs.conciseimageeditor.view.CarrotEditText;
 import com.dyzs.conciseimageeditor.view.CustomSeekBar;
@@ -705,42 +706,37 @@ public class MainUIActivity extends Activity {
         mPaint.setAntiAlias(true);      // 设置消除锯齿
         ArrayList<CarrotInfo> carrotInfoArrayList = new ArrayList<>();
         CarrotInfo carrotInfo;
-        int saveLeft, saveBottom;
+        float saveLeft, saveBottom;
         for (MovableTextView2 mtv : mMtvLists) {
             carrotInfo = new CarrotInfo();
             mPaint.setColor(mtv.getCurrentTextColor());
             mPaint.setTypeface(mtv.getTypeface());
-//            mtv.measure(
-//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST),
-//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST));
+            mtv.measure(
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST));
+            float viewHeight = mtv.getMeasuredHeight();
+            float viewWidth = mtv.getMeasuredWidth();
             float textViewL = mtv.getLeft() * 1.0f;
             float textViewT = mtv.getTop() * 1.0f;
+            float textViewR = mtv.getRight() * 1.0f;
             float textViewB = mtv.getBottom() * 1.0f;
-            float textViewH = mtv.getHeight() * 1.0f;
+//            float textViewH = mtv.getHeight() * 1.0f;
             float imgW = iv_main_image.getWidth() * 1.0f;
             float imgH = iv_main_image.getHeight() * 1.0f;
-            // 得到根据缩放比的文本高度，确定画笔绘画时的文本的高度，大小
-            float textSize = mtv.getTextSize(); // * scale
-            // textSize 就是文本在绘画时的高度
+            float textSize = mtv.getTextSize();
+            // textSize 就是文本在绘画时的高度，也是文本的大小
             mPaint.setTextSize(textSize);
-
-            // 获取画笔要绘画的控件spacing
-            float test = (textViewH - mtv.getTextSize()) / scale / 2;
-            // 得到绘制之前的准确绘制点
-            // TODO 使用 paintMatrix 得到 baseLine 等属性准确的获取文本位置
-//            float pointBottomBeforeDraw = textViewB - (textViewH - mtv.getTextSize()) / 2;
-
-            // System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + test);
-            // 1表示 shape_dotted 的宽度
-            saveLeft = (int) ((textViewL - leaveW + 1*1.0f) * scale);    // + 1
-//
-//            // saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);
-//            // 减2表示 shape_dotted 的高度 * 2
-            saveBottom = (int) (((textViewB - leaveH - test)) * scale) - 2;// - 2*1.0f
-            // saveBottom = (int) (pointBottomBeforeDraw * scale);
+            float textLength = mPaint.measureText(mtv.getText().toString());
+            // 计算得到当前画笔绘制规则的 baseLine，用来准确计算
+            float textCenterVerticalBaselineY = FontMatrixUtils.calcTextCenterVerticalBaselineY(mPaint);
+            // 画笔实际绘画的 Y 坐标：baseLine + top + y轴上的间距
+            saveBottom = textCenterVerticalBaselineY + textViewT + (textViewB - textViewT - textSize) / 2;
+            // 得到绘制的第一个字符在 X 轴上与左边框的间距
+            float leftPadding = (textViewR - textViewL - textLength) / 2;
+            saveLeft = textViewL + leftPadding;
             canvas.drawText(
                     mtv.getText().toString(),
-                    textViewL, textViewB,
+                    saveLeft, saveBottom,
                     mPaint
             );
 
