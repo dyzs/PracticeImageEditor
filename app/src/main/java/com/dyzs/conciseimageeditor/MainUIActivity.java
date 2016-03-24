@@ -73,7 +73,7 @@ public class MainUIActivity extends Activity {
 
 
 
-    private static int mCurrImgId = R.mipmap.pic_bg_1920x1080x001;
+    private static int mCurrImgId = R.mipmap.pic_bg_software_esting_ngineer;
     public int keyboardHeight = 0;              // 记录键盘高度
 
 
