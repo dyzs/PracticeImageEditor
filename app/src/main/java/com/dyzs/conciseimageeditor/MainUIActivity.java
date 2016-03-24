@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -31,6 +32,7 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.dyzs.conciseimageeditor.entity.CarrotInfo;
 import com.dyzs.conciseimageeditor.entity.MatrixInfo;
 import com.dyzs.conciseimageeditor.utils.ColorUtil;
 import com.dyzs.conciseimageeditor.utils.CommonUtils;
@@ -84,6 +86,7 @@ public class MainUIActivity extends Activity {
 
 
     // edit panel params
+    private LinearLayout ll_base_edit_panel;
     private LinearLayout edit_panel;            // 文字编辑面板，使用 LayoutInflate
     private ImageView ep_KeyboardOptions;
     private CarrotEditText ep_OperateText;
@@ -118,7 +121,6 @@ public class MainUIActivity extends Activity {
 
 
         fl_image_editor_base_layout = (FrameLayout) findViewById(R.id.fl_image_editor_base_layout);
-
         initView();
         // 加载图片
         loadBitmap();
@@ -134,6 +136,10 @@ public class MainUIActivity extends Activity {
         imageHeight = BitmapUtils.getScreenPixels(mContext).heightPixels;
 
         fl_main_content = (FrameLayout) findViewById(R.id.fl_main_content);
+        // edit_panel 的父容器
+        ll_base_edit_panel = (LinearLayout) findViewById(R.id.ll_base_edit_panel);
+        ll_base_edit_panel.setVisibility(View.INVISIBLE);
+
         // topBar
         bt_save = (ImageView) findViewById(R.id.bt_save);
         // mainContent
@@ -185,7 +191,7 @@ public class MainUIActivity extends Activity {
                         keyboardHeight = height;
                         SystemClock.sleep(300);
                         edit_panel = (LinearLayout) LayoutInflater.from(mContext).inflate(R.layout.layout_edit_panel, null);
-                        fl_image_editor_base_layout.addView(edit_panel);
+                        ll_base_edit_panel.addView(edit_panel);
 
                         ep_KeyboardOptions = (ImageView) edit_panel.findViewById(R.id.iv_edit_panel_key_board_options);
                         ep_OperateText = (CarrotEditText) edit_panel.findViewById(R.id.et_edit_panel_text);
@@ -200,27 +206,20 @@ public class MainUIActivity extends Activity {
                         ll_edit_panel_head.measure(0, 0);
                         int headHeight = ll_edit_panel_head.getMeasuredHeight();
 
-                        // 获取系统的状态栏高度
-//                        Rect frame = new Rect();
-//                        getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
-//                        int statusBarHeight = frame.top;
-
-                        FrameLayout.LayoutParams lps = (FrameLayout.LayoutParams) edit_panel.getLayoutParams();
-                        lps.height = keyboardHeight + headHeight;
+                        LinearLayout.LayoutParams lps = (LinearLayout.LayoutParams) edit_panel.getLayoutParams();
+                        lps.height = headHeight + keyboardHeight;
                         lps.gravity = Gravity.BOTTOM;
                         edit_panel.setLayoutParams(lps);
-                        // TODO 字体设置未完成
+                        ll_base_edit_panel.setVisibility(View.VISIBLE);
+
                         addMovableTextView();
                         initDataToSeekBar();
                         handleEditPanelEvent();
 
-                        // MovableTextView2 cur = mMtvLists.get(0);
-                        loadMtvDataIntoEditPanel(mMtvLists.get(0));
-
                         createMtvOnLoading = false;
                         openKeyboardOnLoading = false;
                     } else {
-                        edit_panel.setVisibility(View.VISIBLE);
+                        ll_base_edit_panel.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -255,12 +254,17 @@ public class MainUIActivity extends Activity {
             }
         });
 
-//        iv_main_image.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                hideEditPanelAndCloseKb();
-//            }
-//        });
+        ll_base_edit_panel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
+                // 清理所有选中状态
+                for (MovableTextView2 m : mMtvLists) {
+                    m.setSelected(false);
+                }
+                hideEditPanelAndCloseKeyboard();
+            }
+        });
     }
 
 
@@ -282,41 +286,12 @@ public class MainUIActivity extends Activity {
         }
         @Override
         public void onCustomClick() {
-            // 键盘状态是打开，同时还未执行任何点击，点击后关闭键盘，状态调整为关闭
-            if (mCurKeyboardState == KeyboardState.STATE_OPEN && mMtv.getFirstClick()) {
-                mMtv.setFirstClick(false);                       // 关闭当前控件的第一次点击
-                edit_panel.setVisibility(View.INVISIBLE);       // 隐藏编辑面板
-                CommonUtils.hitKeyboardOpenOrNot(mContext);     // 自动关闭键盘
+            // details 因为当键盘隐藏的时候，点击才显示软键盘，而软键盘打开的时候，事件已经被它的父容器
+            // 消费了，所以不可能触发到点击事件
+            mMtv.setSelected(true);
+            if (mCurKeyboardState == KeyboardState.STATE_HIDE) {
+                ll_base_edit_panel.setVisibility(View.VISIBLE);
             }
-
-            // 键盘打开状态，同时第一次点击已经被消费，点击后关闭键盘，状态调整为关闭
-            else if (mCurKeyboardState == KeyboardState.STATE_OPEN && !mMtv.getFirstClick()) {
-                if (edit_panel.getVisibility() == View.VISIBLE) {
-                    edit_panel.setVisibility(View.INVISIBLE);
-                    CommonUtils.hitKeyboardOpenOrNot(mContext);     // 自动关闭键盘
-                } else {
-                    edit_panel.setVisibility(View.VISIBLE);
-                }
-            }
-
-            // 键盘关闭状态，同时当前控件的第一次点击已经被消费，点击后打开键盘，状态恢复打开
-            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && mMtv.getFirstClick()) {
-                if (edit_panel.getVisibility() == View.VISIBLE) {
-                    edit_panel.setVisibility(View.INVISIBLE);
-                } else {
-                    edit_panel.setVisibility(View.VISIBLE);
-                }
-            }
-
-            // 键盘关闭状态，同时当前控件的第一次点击已经被消费，点击后打开键盘，状态恢复打开
-            else if (mCurKeyboardState == KeyboardState.STATE_HIDE && !mMtv.getFirstClick()) {
-                if (edit_panel.getVisibility() == View.VISIBLE) {
-                    edit_panel.setVisibility(View.INVISIBLE);
-                } else {
-                    edit_panel.setVisibility(View.VISIBLE);
-                }
-            }
-
             // 把 MovableTextView2 的数据载入到编辑面板中
             loadMtvDataIntoEditPanel(mMtv);
         }
@@ -327,21 +302,19 @@ public class MainUIActivity extends Activity {
      * @param currMtv
      */
     private void loadMtvDataIntoEditPanel(MovableTextView2 currMtv) {
-        if (edit_panel.getVisibility() == View.INVISIBLE) {return;}
+        if (ll_base_edit_panel.getVisibility() == View.INVISIBLE) {
+            return;
+        }
         for (MovableTextView2 m : mMtvLists) {
-            m.setSelected(false);
             if (m.equals(currMtv)) {
-                m.setSelected(true);    // 此步操作给编辑CarrotEditText事件做前提操作
+                ep_OperateText.setText(m.getText());
+                ep_OperateText.setSelection(m.getText().length());   // 设置光标的位置
+                ep_IvColorShow.setBackgroundColor(m.getCurrentTextColor());
+                ep_CsbFontColor.setProgress(m.getColorSeekBarProgress());
+                // ep_CsbFontColor.setProgress();
+                ep_FontSize.setProgress(DensityUtils.px2dp(mContext, m.getTextSize()));
             }
         }
-        // TODO 添加数据
-        ep_OperateText.setText(currMtv.getText());
-        ep_OperateText.setSelection(currMtv.getText().length());   // 设置光标的位置
-        ep_IvColorShow.setBackgroundColor(currMtv.getCurrentTextColor());
-        ep_CsbFontColor.setProgress(currMtv.getColorSeekBarProgress());
-        // ep_CsbFontColor.setProgress();
-        ep_FontSize.setProgress(DensityUtils.px2dp(mContext, currMtv.getTextSize()));
-
     }
 
 
@@ -380,15 +353,9 @@ public class MainUIActivity extends Activity {
      * 添加一个文本控件
      */
     private void addMovableTextView() {
-        if (mMtvLists != null && mMtvLists.size() > 0) {
-            for (MovableTextView2 m : mMtvLists) {
-                m.setSelected(false);
-                m.setFirstClick(false);
-            }
-        }
-        final MovableTextView2 mtv = new MovableTextView2(mContext);
-        mtv.setSelected(true);
-        mtv.addTextChangedListener(new TextWatcher() {
+        final MovableTextView2 newAddMtv = new MovableTextView2(mContext);
+        newAddMtv.setSelected(true);
+        newAddMtv.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -396,7 +363,7 @@ public class MainUIActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                resetLayoutParams(mtv, false, 0, 0);
+                resetLayoutParams(newAddMtv, false, 0, 0);
             }
 
             @Override
@@ -404,14 +371,21 @@ public class MainUIActivity extends Activity {
 
             }
         });
-        mtv.setOnCustomClickListener(new MTVClickListener(mtv));
-        mtv.setFirstClick(true);
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mtv.getLayoutParams();
+        newAddMtv.setOnCustomClickListener(new MTVClickListener(newAddMtv));
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) newAddMtv.getLayoutParams();
         lp.gravity = Gravity.CENTER;
-        mtv.setLayoutParams(lp);
-        fl_main_content.addView(mtv);
-        mMtvLists.add(mtv);
-        loadMtvDataIntoEditPanel(mtv);
+        newAddMtv.setLayoutParams(lp);
+
+        ep_OperateText.setText(newAddMtv.getText());
+        ep_OperateText.setSelection(newAddMtv.getText().length());   // 设置光标的位置
+        ep_IvColorShow.setBackgroundColor(newAddMtv.getCurrentTextColor());
+        ep_CsbFontColor.setProgress(newAddMtv.getColorSeekBarProgress());
+        // ep_CsbFontColor.setProgress();
+        ep_FontSize.setProgress(DensityUtils.px2dp(mContext, newAddMtv.getTextSize()));
+
+        fl_main_content.addView(newAddMtv);
+        mMtvLists.add(newAddMtv);
+        // loadMtvDataIntoEditPanel(newAddMtv);
     }
 
     /**
@@ -674,7 +648,6 @@ public class MainUIActivity extends Activity {
             stickerView.setOperationListener(new StickerView.OperationListener() {
                 @Override
                 public void onDeleteClick() {
-//                    mViews.remove(stickerView);
                     mStickerViews.remove(stickerView);
                     fl_main_content.removeView(stickerView);
                 }
@@ -707,15 +680,112 @@ public class MainUIActivity extends Activity {
      * @param canvas
      */
     private void saveViews(Canvas canvas) {
-        if (mStickerViews == null || mStickerViews.size() <= 0) {
-            return;
-        }
         float leaveH = 0f, leaveW = 0f, scale = 0f;
         scale  = scaleAndLeaveSize[0];   // 原图与ImageView的缩放比例
         leaveW = scaleAndLeaveSize[1];   // 图片自动缩放时造成的留白区域
         leaveH = scaleAndLeaveSize[2];
         canvas.scale(scale, scale);
         canvas.translate(-leaveW, -leaveH);
+        // 保存文本
+        saveBeautyWords(canvas, scale, leaveW, leaveH);
+
+        // 保存贴纸
+        saveSticker(canvas);
+
+        // 最后生成图片
+        String imagePath = FileUtils.saveBitmapToLocal(copyBitmap, mContext);
+        ToastUtil.makeText(mContext, "保存图片成功~~~~~~~" + imagePath);
+    }
+    private void saveBeautyWords(Canvas canvas, float scale, float leaveW, float leaveH) {
+        if (mMtvLists == null || mMtvLists.size() <= 0) {
+            return;
+        }
+//        // 在保存之前先执行完成逻辑
+//        if (mMtvLists != null && mMtvLists.size() > 0) {
+//            operateCarrotComplete();
+//        }
+        Paint mPaint = new Paint();     // 初始化画笔
+        mPaint.setAntiAlias(true);      // 设置消除锯齿
+        ArrayList<CarrotInfo> carrotInfoArrayList = new ArrayList<>();
+        CarrotInfo carrotInfo;
+        int saveLeft, saveBottom;
+        for (MovableTextView2 mtv : mMtvLists) {
+            carrotInfo = new CarrotInfo();
+            mPaint.setColor(mtv.getCurrentTextColor());
+            mPaint.setTypeface(mtv.getTypeface());
+//            mtv.measure(
+//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST),
+//                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.AT_MOST));
+            float textViewL = mtv.getLeft() * 1.0f;
+            float textViewT = mtv.getTop() * 1.0f;
+            float textViewB = mtv.getBottom() * 1.0f;
+            float textViewH = mtv.getHeight() * 1.0f;
+            float imgW = iv_main_image.getWidth() * 1.0f;
+            float imgH = iv_main_image.getHeight() * 1.0f;
+//            float bitW = copyBitmap.getWidth() * 1.0f;
+//            float bitH = copyBitmap.getHeight() * 1.0f;
+//            scaleXX = bitW / imgW;
+//            scaleYY = bitH / imgH;
+//            float scale = scaleXX > scaleYY ? scaleXX : scaleYY;
+//            if (scaleXX > scaleYY) {
+//                leaveH = (imgH - bitH / scale) / 2;
+//            } else {
+//                leaveW = (imgW - bitW / scale) / 2;
+//            }
+            // 得到根据缩放比的文本高度，确定画笔绘画时的文本的高度，大小
+            float textSize = mtv.getTextSize() * scale;
+            // textSize 就是文本在绘画时的高度
+            mPaint.setTextSize(textSize);
+
+            // 获取画笔要绘画的控件spacing
+            float test = (textViewH - mtv.getTextSize()) / scale / 2;
+            // 得到绘制之前的准确绘制点
+            // TODO 使用 paintMatrix 得到 baseLine 等属性准确的获取文本位置
+//            float pointBottomBeforeDraw = textViewB - (textViewH - mtv.getTextSize()) / 2;
+
+            // System.out.println("leave:" + leaveW + ":" + leaveH + "//spacing:" + test);
+            // 1表示 shape_dotted 的宽度
+            saveLeft = (int) ((textViewL - leaveW + 1*1.0f) * scale);    // + 1
+//
+//            // saveBottom = (int) (((textViewB - leaveH) - textSpacing) * scale);
+//            // 减2表示 shape_dotted 的高度 * 2
+            saveBottom = (int) (((textViewB - leaveH - test)) * scale) - 2;// - 2*1.0f
+            // saveBottom = (int) (pointBottomBeforeDraw * scale);
+            canvas.drawText(
+                    mtv.getText().toString(),
+                    saveLeft, saveBottom,
+                    mPaint
+            );
+
+            // 还得保存一个 position 相对于父控件的位置的比例
+            carrotInfo.text = mtv.getText().toString();
+            carrotInfo.textSize = mtv.getTextSize();
+            carrotInfo.colorR = mtv.getColorR();
+            carrotInfo.colorG = mtv.getColorG();
+            carrotInfo.colorB = mtv.getColorB();
+            carrotInfo.typeface = mtv.getTypefaceName();
+            carrotInfo.pLeftScale = textViewL * 1.0f / imgW;
+            carrotInfo.pTopScale = textViewT * 1.0f / imgH;
+            carrotInfo.pLeft = (int) textViewL;
+            carrotInfo.pTop = (int) textViewT;
+            carrotInfoArrayList.add(carrotInfo);      // 保存了位置，颜色等属性参数
+            fl_main_content.removeView(mtv);
+        }
+        // TODO 序列化保存文本参数
+
+
+        mMtvLists.clear();
+        mMtvLists = null;
+    }
+
+    /**
+     * 保存贴纸
+     * @param canvas
+     */
+    private void saveSticker(Canvas canvas) {
+        if (mStickerViews == null || mStickerViews.size() <= 0) {
+            return;
+        }
         ArrayList<MatrixInfo> matrixInfoArrayList = new ArrayList<>();
         MatrixInfo matrixInfo;
         for(StickerView sv:mStickerViews) {
@@ -723,14 +793,17 @@ public class MainUIActivity extends Activity {
             matrixInfo = new MatrixInfo();
             matrixInfo.floatArr = sv.saveMatrixFloatArray();
             matrixInfoArrayList.add(matrixInfo);
+            fl_main_content.removeView(sv);
         }
-        String imagePath = FileUtils.saveBitmapToLocal(copyBitmap, mContext);
-        // add 插入保存图片 matrix
-        // FileUtils.saveSerializableMatrix(matrixInfo);   // 保存单个贴纸的矩阵信息
         FileUtils.saveSerializableMatrixLists(matrixInfoArrayList);
-        System.out.println("保存成功~~~~~~~" + imagePath);
-        ToastUtil.makeText(mContext, "保存成功~~~~~~~" + imagePath);
+        System.out.println("保存贴纸成功~~~~~~~");
+        mStickerViews.clear();
+        mStickerViews = null;
     }
+
+    /**
+     * 初始化颜色 seekBar 控件的值
+     */
     private int[] colorValues = {R.color.rainbow_red, R.color.rainbow_orange, R.color.rainbow_yellow,
             R.color.rainbow_green, R.color.rainbow_blue, R.color.rainbow_cyan,
             R.color.rainbow_purple, R.color.rainbow_black, R.color.rainbow_white};    // 红橙黄绿蓝靛紫黑白
@@ -791,13 +864,7 @@ public class MainUIActivity extends Activity {
         ep_BtnComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (MovableTextView2 mtv : mMtvLists) {
-                    if (mtv.isSelected() && mtv.getText().length() == 0) {
-                        mMtvLists.remove(mtv);
-                        fl_main_content.removeView(mtv);
-                    }
-                }
-                hideEditPanelAndCloseKeyboard();
+                operateCarrotComplete();
             }
         });
 
@@ -841,6 +908,7 @@ public class MainUIActivity extends Activity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 for (MovableTextView2 mtv : mMtvLists) {
@@ -849,12 +917,31 @@ public class MainUIActivity extends Activity {
                     }
                 }
             }
+
             @Override
             public void afterTextChanged(Editable s) {
 
             }
         });
+    }
 
+    /**
+     * 完成按钮的点击操作
+     */
+    private void operateCarrotComplete() {
+
+        ToastUtil.makeText(mContext, "被我拦截了，没用的点不了");
+        for (MovableTextView2 mtv : mMtvLists) {
+            if (mtv.isSelected() && mtv.getText().length() == 0) {
+                mMtvLists.remove(mtv);
+                fl_main_content.removeView(mtv);
+            }
+        }
+        // 清理所有选中状态
+        for (MovableTextView2 m : mMtvLists) {
+            m.setSelected(false);
+        }
+        hideEditPanelAndCloseKeyboard();
     }
 
     @Deprecated
@@ -874,7 +961,6 @@ public class MainUIActivity extends Activity {
     private void operateKeyboardState() {
         if (mCurKeyboardState == KeyboardState.STATE_OPEN) {
             mCurKeyboardState = KeyboardState.STATE_HIDE;
-            // TODO
         } else if (mCurKeyboardState == KeyboardState.STATE_HIDE) {
             mCurKeyboardState = KeyboardState.STATE_OPEN;
         }
@@ -885,8 +971,8 @@ public class MainUIActivity extends Activity {
      * @details 同时关闭编辑panel和软键盘
      */
     private void hideEditPanelAndCloseKeyboard() {
-        if (edit_panel.getVisibility() == View.VISIBLE) {
-            edit_panel.setVisibility(View.INVISIBLE);
+        if (ll_base_edit_panel.getVisibility() == View.VISIBLE) {
+            ll_base_edit_panel.setVisibility(View.INVISIBLE);
         }
         if (mCurKeyboardState == KeyboardState.STATE_OPEN) {
             mCurKeyboardState = KeyboardState.STATE_HIDE;
@@ -901,7 +987,6 @@ public class MainUIActivity extends Activity {
      * @param top
      * @param left
      */
-    // TODO ===========================
     private void resetLayoutParams(MovableTextView2 mtv, boolean isEditStateReload, int top, int left) {
         mtv.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),

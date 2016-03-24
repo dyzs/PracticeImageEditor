@@ -5,6 +5,13 @@
     android:background="@android:color/transparent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+    <!--<View-->
+        <!--android:id="@+id/v_edit_panel_transparent"-->
+        <!--android:background="@android:color/darker_gray"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="1"-->
+        <!--/>-->
     <LinearLayout
         android:id="@+id/ll_edit_panel_head"
         android:layout_width="match_parent"

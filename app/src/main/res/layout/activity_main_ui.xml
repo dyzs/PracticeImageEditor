@@ -71,19 +71,17 @@
 
     </LinearLayout>
 
-    <!--<LinearLayout-->
-        <!--android:id="@+id/ll_edit_panel"-->
-        <!--android:visibility="visible"-->
-        <!--android:orientation="vertical"-->
-        <!--android:background="@android:color/transparent"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
-        <!--<View-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="0dp"-->
-            <!--android:layout_weight="1"-->
-            <!--/>-->
-        <!--<include layout="@layout/layout_image_editor_panel_head"/>-->
-        <!--<include layout="@layout/layout_image_editor_panel_content"/>-->
-    <!--</LinearLayout>-->
+    <LinearLayout
+        android:id="@+id/ll_base_edit_panel"
+        android:visibility="visible"
+        android:orientation="vertical"
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
 </FrameLayout>

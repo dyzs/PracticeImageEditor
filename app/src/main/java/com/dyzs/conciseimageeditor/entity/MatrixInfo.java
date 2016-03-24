@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Created by maidou on 2016/3/15.
- * @details
+ * @details 用来保存贴纸的三阶矩阵的信息，把三阶矩阵拆分成 9 个 float 值并通过序列化保存。
  */
 public class MatrixInfo implements Serializable{
     public float[] floatArr;

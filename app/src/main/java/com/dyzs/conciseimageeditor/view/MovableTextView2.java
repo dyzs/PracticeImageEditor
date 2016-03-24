@@ -59,9 +59,6 @@ public class MovableTextView2 extends EditText{
         STATE_MOVING, STATE_SELECTED, STATE_UNSELECTED
     }
 
-    private static final int ACTION_STATE_DOWN = 1;
-    private static final int ACTION_STATE_MOVE = 2;
-    private static final int ACTION_STATE_UP = 3;
     private OperateState operateState = OperateState.STATE_UNSELECTED;
     public void setBackgroundRes() {
         // 判断如果是在选中状态或者是滑动状态，则添加背景
